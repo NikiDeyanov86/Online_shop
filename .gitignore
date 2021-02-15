@@ -1,3 +1,9 @@
+# IDE folders
+.vscode/
+
+# database
+test.db
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
