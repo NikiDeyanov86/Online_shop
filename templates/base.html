@@ -13,6 +13,7 @@
 
   <style>
     @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css");
+    #navBarSearchForm input[type=search]{width:500px !important;}
   </style>
 
   <!-- Additional styles and scripts will go here -->
@@ -21,16 +22,16 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-center">
     <a class="navbar-brand" href="#">Shop++</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02"
       aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-      <form class="form-inline my-2 my-lg-0 mx-auto">
-        <input class="form-control mr-sm-2 input-large" type="search" placeholder="Search">
+    <div class="collapse navbar-collapse justify-content-center" id="navbarTogglerDemo02">
+      <form class="form-inline my-2 my-lg-0 mx-auto d-inline form" id="navBarSearchForm">
+        <input class="form-control mr-sm-2 input-large navbar-form navbar-right " type="search" placeholder="Search">
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><em class="bi bi-search"></em></button>
       </form>
 
@@ -48,36 +49,6 @@
     </div>
   </nav>
 
-  <div class="input-group input-group-sm mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="inputGroup-sizing-sm">Small</span>
-    </div>
-    <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
-  </div>
-  
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="inputGroup-sizing-default">Default</span>
-    </div>
-    <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
-  </div>
-  
-  <div class="input-group input-group-lg">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="inputGroup-sizing-lg">Large</span>
-    </div>
-    <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg">
-  </div>
-  <form>
-    <div class="row">
-      <div class="col">
-        <input class="form-control mr-sm-2 input-large" type="search" placeholder="Search">
-      </div>
-      <div class="col">
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><em class="bi bi-search"></em></button>
-      </div>
-    </div>
-  </form>
 
   <script>
     $("#profile").hover(
