@@ -71,3 +71,52 @@ def login():
             login_user(user)
 
             return redirect(url_for('home'))
+
+
+@app.route('/admin')
+@login_required(role='admin')
+def admin():
+    return render_template('admin.html')
+
+
+@app.route('/admin/register', methods=['GET', 'POST'])
+@login_required(role='admin')
+def admin_register():
+    if 'login_id' in current_user.__dict__:
+        return redirect(url_for('home'))
+
+    if request.method == 'GET':
+        return render_template("admin_register.html")
+    else:
+        username = request.form['username']
+        email = request.form['email']
+        password = generate_password_hash(request.form['password'])
+
+        user = User(username=username, email=email, password=password)
+
+        db_session.add(user)
+        db_session.commit()
+
+        return redirect(url_for('admin'))
+
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if 'login_id' in current_user.__dict__:
+        return redirect(url_for('home'))
+
+    if request.method == 'GET':
+        return render_template('admin_login.html')
+    else:
+        name_email = request.form['name_email']
+        password = request.form['password']
+
+        user = User.query.filter((User.username == name_email) | (
+            User.email == name_email)).first()
+
+        if user and check_password_hash(user.password, password):
+            user.login_id = str(uuid.uuid4())
+            db_session.commit()
+            login_user(user)
+
+            return redirect(url_for('admin'))
