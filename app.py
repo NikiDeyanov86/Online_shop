@@ -49,3 +49,25 @@ def register():
         db_session.commit()
 
         return redirect(url_for('login'))
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if 'login_id' in current_user.__dict__:
+        return redirect(url_for('home'))
+
+    if request.method == 'GET':
+        return render_template('login.html')
+    else:
+        name_email = request.form['name_email']
+        password = request.form['password']
+
+        user = User.query.filter((User.username == name_email) | (
+            User.email == name_email)).first()
+
+        if user and check_password_hash(user.password, password):
+            user.login_id = str(uuid.uuid4())
+            db_session.commit()
+            login_user(user)
+
+            return redirect(url_for('home'))
