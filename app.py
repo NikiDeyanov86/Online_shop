@@ -3,6 +3,7 @@ import os
 
 from flask import Flask
 from flask import render_template, request, redirect, make_response, url_for
+from functools import wraps
 
 from flask_login import login_user, login_required, current_user, logout_user
 from werkzeug.middleware.shared_data import SharedDataMiddleware
@@ -19,6 +20,18 @@ app = Flask(__name__)
 app.secret_key = "ssucuuh398nuwetubr33rcuhne"
 login_manager.init_app(app)
 init_db()
+
+
+def admin_login_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return redirect(url_for('admin_login'))
+        role = login_manager.reload_user().get_role()
+        if role != "admin":
+            return login_manager.unauthorized()
+        return func(*args, **kwargs)
+    return decorated_view
 
 
 @app.teardown_appcontext
@@ -74,13 +87,13 @@ def login():
 
 
 @app.route('/admin')
-@login_required(role='admin')
+@admin_login_required
 def admin():
     return render_template('admin.html')
 
 
 @app.route('/admin/register', methods=['GET', 'POST'])
-@login_required(role='admin')
+@admin_login_required
 def admin_register():
     if 'login_id' in current_user.__dict__:
         return redirect(url_for('home'))
