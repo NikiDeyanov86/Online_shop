@@ -120,3 +120,13 @@ def admin_login():
             login_user(user)
 
             return redirect(url_for('admin'))
+
+
+@ app.route('/logout')
+@ login_required
+def logout():
+    current_user.login_id = None
+    db_session.commit()
+    logout_user()
+
+    return redirect(url_for('home'))
