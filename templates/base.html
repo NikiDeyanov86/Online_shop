@@ -36,7 +36,7 @@
     <link rel="stylesheet" href="../static/css/owl-carousel.css">
 	<!-- Slicknav -->
     <link rel="stylesheet" href="../static/css/slicknav.min.css">
-
+	
 	<!-- Eshop StyleSheet -->
 	<link rel="stylesheet" href="../static/css/reset.css">
 	<link rel="stylesheet" href="../static/css/style.css">
@@ -104,8 +104,22 @@
 							<div class="sinlge-bar">
 								<a href="#" class="single-icon"><i class="fa fa-heart-o" aria-hidden="true"></i></a>
 							</div>
-							<div class="sinlge-bar">
-								<a href="#" class="single-icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></a>
+							<div class="sinlge-bar shopping">
+								<a href="/login" class="single-icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></a>
+								<div class="shopping-item">
+									
+									<ul>
+										<li>
+											<a href="/login">Sign in</a>
+											
+										</li>
+										<li>
+											<a href="/register">Sign up</a>
+											
+										</li>
+									</ul>
+									
+								</div>
 							</div>
 							<div class="sinlge-bar shopping">
 								<a href="#" class="single-icon"><i class="ti-bag"></i> <span class="total-count">2</span></a>
@@ -145,7 +159,7 @@
 			</div>
 		</div>
 </header>
-    <!- Content will go here -->
+    <!-- Content will go here -->
     {% block content %}
     {% endblock %}
 
