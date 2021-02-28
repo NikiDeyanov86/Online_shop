@@ -52,11 +52,12 @@ def register():
     if request.method == 'GET':
         return render_template("register.html")
     else:
-        username = request.form['username']
+        
         email = request.form['email']
+        #username = email
         password = generate_password_hash(request.form['password'])
 
-        user = User(username=username, email=email, password=password)
+        user = User(email=email, password=password)
 
         db_session.add(user)
         db_session.commit()
@@ -72,11 +73,10 @@ def login():
     if request.method == 'GET':
         return render_template('login.html')
     else:
-        name_email = request.form['name_email']
+        email = request.form['email']
         password = request.form['password']
 
-        user = User.query.filter((User.username == name_email) | (
-            User.email == name_email)).first()
+        user = User.query.filter(User.email == email).first()
 
         if user and check_password_hash(user.password, password):
             user.login_id = str(uuid.uuid4())
@@ -101,11 +101,11 @@ def admin_register():
     if request.method == 'GET':
         return render_template("admin_register.html")
     else:
-        username = request.form['username']
+        #username = request.form['username']
         email = request.form['email']
         password = generate_password_hash(request.form['password'])
 
-        user = User(username=username, email=email, password=password)
+        user = User(email=email, password=password)
 
         db_session.add(user)
         db_session.commit()
@@ -124,8 +124,7 @@ def admin_login():
         name_email = request.form['name_email']
         password = request.form['password']
 
-        user = User.query.filter((User.username == name_email) | (
-            User.email == name_email)).first()
+        user = User.query.filter(User.email == name_email).first()
 
         if user and check_password_hash(user.password, password):
             user.login_id = str(uuid.uuid4())

@@ -105,9 +105,11 @@
 							</div>
 							<div class="sinlge-bar shopping">
 								<a href="/login" class="single-icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></a>
+								
 								<div class="shopping-item">
 									
 									<ul>
+										{% if 'login_id' not in current_user.__dict__ %}
 										<li>
 											<a href="/login">Sign in</a>
 											
@@ -116,9 +118,14 @@
 											<a href="/register">Sign up</a>
 											
 										</li>
+										{% else %}
+										<li>
+											<a href = "/logout">Log out</a>
+										</li>
 									</ul>
-									
+									{% endif %}
 								</div>
+								
 							</div>
 							<div class="sinlge-bar shopping">
 								<a href="cart.html" class="single-icon"><i class="ti-bag"></i> <span class="total-count">2</span></a>
@@ -273,6 +280,7 @@
 	<section class="hero-slider">
 		<!-- Single Slider -->
 		<div class="single-slider">
+			
 			<div class="container">
 				<div class="row no-gutters">
 					<div class="col-lg-9 offset-lg-3 col-12">
@@ -280,8 +288,9 @@
 							<div class="row">
 								<div class="col-lg-7 col-12">
 									<div class="hero-text">
-										<h1><span>UP TO 50% OFF </span>Shirt For Man</h1>
-										<p>Maboriosam in a nesciung eget magnae <br> dapibus disting tloctio in the find it pereri <br> odiy maboriosm.</p>
+										<h1><span>UP TO 50% OFF </span>New Balance sneakers 1500 BRT</h1>
+										
+										<p>bla bla bla bla bla bla bla bla bla <br> dapibus disting tloctio in the find it pereri <br> odiy maboriosm.</p>
 										<div class="button">
 											<a href="#" class="btn">Shop Now!</a>
 										</div>

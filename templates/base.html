@@ -109,6 +109,7 @@
 								<div class="shopping-item">
 									
 									<ul>
+										{% if 'login_id' not in current_user.__dict__ %}
 										<li>
 											<a href="/login">Sign in</a>
 											
@@ -117,8 +118,12 @@
 											<a href="/register">Sign up</a>
 											
 										</li>
+										{% else %}
+										<li>
+											<a href = "/logout">Log out</a>
+										</li>
 									</ul>
-									
+									{% endif %}
 								</div>
 							</div>
 							<div class="sinlge-bar shopping">
