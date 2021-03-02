@@ -144,3 +144,8 @@ def logout():
     return redirect(url_for('home'))
 
 
+@ app.route('/cart')
+def cart():
+    return render_template('cart.html')
+
+
