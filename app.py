@@ -12,14 +12,23 @@ from werkzeug.utils import secure_filename
 
 from database import db_session, init_db
 from login import login_manager
-from models import User
+from models import User, Product, Category, Photo
 
 from datetime import datetime
 
+import config
+
 app = Flask(__name__)
-app.secret_key = "ssucuuh398nuwetubr33rcuhne"
+app.secret_key = config.SECRET_KEY
 login_manager.init_app(app)
 init_db()
+
+ADMIN = User.query.filter_by(email=config.EMAIL, role="admin").first()
+if not ADMIN:
+    ADMIN = User(email=config.EMAIL, password=config.PASSWORD, role="admin")
+
+    db_session.add(ADMIN)
+    db_session.commit()
 
 
 def admin_login_required(func):
@@ -52,9 +61,7 @@ def register():
     if request.method == 'GET':
         return render_template("register.html")
     else:
-        
         email = request.form['email']
-        #username = email
         password = generate_password_hash(request.form['password'])
 
         user = User(email=email, password=password)
@@ -101,7 +108,6 @@ def admin_register():
     if request.method == 'GET':
         return render_template("admin_register.html")
     else:
-        #username = request.form['username']
         email = request.form['email']
         password = generate_password_hash(request.form['password'])
 
@@ -121,10 +127,10 @@ def admin_login():
     if request.method == 'GET':
         return render_template('admin_login.html')
     else:
-        name_email = request.form['name_email']
+        email = request.form['email']
         password = request.form['password']
 
-        user = User.query.filter(User.email == name_email).first()
+        user = User.query.filter(User.email == email).first()
 
         if user and check_password_hash(user.password, password):
             user.login_id = str(uuid.uuid4())
@@ -132,6 +138,9 @@ def admin_login():
             login_user(user)
 
             return redirect(url_for('admin'))
+        else:
+            # Invalid
+            pass
 
 
 @ app.route('/logout')
@@ -147,5 +156,3 @@ def logout():
 @ app.route('/cart')
 def cart():
     return render_template('cart.html')
-
-
