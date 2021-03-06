@@ -2,14 +2,110 @@
 
 <!-- Change the title -->
 {% block title %} Admin {% endblock %}
-
+{% block head %}
+    <style>
+        body{
+                background-image: url("/static/images/Background designs/Design 2-WithWhiteBG.png");
+            }
+            .containerWhite{
+                background-color: #FFFFFF;
+                opacity: 0.9;
+                width: 75%;
+                margin: auto;
+            }
+    </style>
+{% endblock %}
 {% block content %}
 
-<div class="mt-5">
+<script>
+
+function addCategory(Category new_category) {
+
+}
+
+function addProduct() {
+
+}
+
+</script>
+
+<div class="my-5 containerWhite">
     <div class="row justify-content-center">
-        <div class="col-4">
+        <div class="col-6">
             <h1>This Is An Admin Page.</h1>
-            <h2>Тази страница не знам дали ни трябва и какво ще има на нея.</h2>
+            <br>
+
+            <div id="accordion" class="mb-3">
+              <div class="mb-3">
+                <div id="headingOne">
+                  <h5 class="mb-0">
+                      <button class="btn btn-outline-dark btn-lg btn-block" data-toggle="collapse" data-target="#CategoryForm" aria-controls="CategoryForm">
+                          Add Category
+                      </button>
+                  </h5>
+                </div>
+
+                <div id="CategoryForm" class="collapse my-4" aria-labelledby="headingOne" data-parent="#accordion">
+                    <form action="POST">
+                        <div class="form-group">
+                            <label for="category_name">Category Name</label>
+                            <input name="category_name" required type="text" class="form-control" id="category_name">
+                        </div>
+
+                        <button class="btn btn-outline-dark btn-lg btn-block" value="Category" name="Submit" type="submit">Submit</button>
+                    </form>
+                </div>
+              </div>
+
+
+              <div>
+                <div id="headingTwo">
+                  <h5 class="mb-0">
+                    <button class="btn btn-outline-dark btn-lg btn-block" data-toggle="collapse" data-target="#ProductForm" aria-controls="ProductForm">
+                          Add Product
+                    </button>
+                  </h5>
+                </div>
+                <div id="ProductForm" class="collapse my-4" aria-labelledby="headingTwo" data-parent="#accordion">
+
+                    <form action="POST">
+                        <div class="form-group">
+                            <label for="product_name">Product Name</label>
+                            <input name="product_name" required type="text" class="form-control" id="product_name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Category">Category</label>
+                            <select name="product_category" class="form-control" id="Category">
+                              {% for category in categories %}
+                                   <option value="{{ category.name }}">{{ category.name }}</option>  <!-- TODO should return all categories to admin -->
+                              {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Description">Description</label>
+                            <textarea class="form-control" id="Description" rows="3" maxlength="499" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="product_price">Product Price</label>
+                            <input name="product_price" type="number" class="form-control" id="product_price" required>
+                        </div>
+
+                          <div class="form-group">
+                            <label for="product_photo">Photo for the product</label>
+                            <input name="product_photo" type="file" class="form-control-file" id="product_photo">
+                          </div>
+                        <button class="btn btn-outline-dark btn-lg btn-block" value="Product" name="Submit" type="submit">Submit</button>
+                    </form>
+
+                </div>
+              </div>
+
+            </div>
+
+
         </div>
     </div>
 

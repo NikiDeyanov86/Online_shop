@@ -21,6 +21,13 @@ import config
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
 login_manager.init_app(app)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # 16MB
+app.config['UPLOAD_FOLDER'] = '/tmp/flask/uploads'
+
+app.add_url_rule('/uploads/<filename>', 'uploaded_file', build_only=True)
+app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
+    '/uploads':  app.config['UPLOAD_FOLDER']
+})
 init_db()
 
 ADMIN = User.query.filter_by(email=config.EMAIL, role="admin").first()
@@ -97,10 +104,29 @@ def login():
             return redirect(url_for('home'))
 
 
-@app.route('/admin')
+@app.route('/admin', methods=['GET', 'POST'])
 @admin_login_required
 def admin():
-    return render_template('admin.html')
+    if request.method == 'GET':
+        return render_template('admin.html', categories=Category.query.all())
+
+    elif request.form['Submit'] == 'Category':
+        name = request.form['category_name']
+        new_category = Category(name=name)
+
+        db_session.add(new_category)
+        db_session.commit()
+
+        return render_template('admin.html', categories=Category.query.all())
+
+    else:
+        name = request.form['product_name']
+        category = request.form['product_category']
+        price = request.form['product_price']
+        photo = request.form['product_photo']
+
+        new_product
+        return render_template('admin.html', categories=Category.query.all())
 
 
 @app.route('/admin/register', methods=['GET', 'POST'])
