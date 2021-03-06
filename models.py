@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -7,7 +7,7 @@ class User(Base):
     __tablename__ = "User"
 
     id = Column(Integer, primary_key=True)
-    #username = Column(String(80), unique=True, nullable=False)
+    # username = Column(String(80), unique=True, nullable=False)
     email = Column(String(80), unique=True, nullable=False)
     password = Column(String(80), nullable=False)
     login_id = Column(String(36), nullable=True)
@@ -35,3 +35,43 @@ class User(Base):
 
     def get_role(self):
         return self.role
+
+
+class Category(Base):
+    __tablename__ = 'Category'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(45), nullable=False)
+
+    product = relationship("Product", back_populates="category",
+                           cascade="all, delete", passive_deletes=True)
+
+
+class Product(Base):
+    __tablename__ = 'Product'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(80), nullable=False)
+    description = Column(String(500), nullable=True)
+    price = Column(Float, nullable=False)
+    rating = Column(Float, default=0)
+    # Counts the times the product was rated
+    rated = Column(Integer, default=0)
+
+    category_id = Column(Integer, ForeignKey(
+        'Category.id', ondelete="CASCADE"))
+    category = relationship("Category", back_populates="product")
+
+    photo = relationship("Photo", back_populates="product",
+                         cascade="all, delete", passive_deletes=True)
+
+
+class Photo(Base):
+    __tablename__ = 'Photo'
+
+    id = Column(Integer, primary_key=True)
+    address = Column(String(80), nullable=False)
+
+    product_id = Column(Integer, ForeignKey(
+        'Product.id', ondelete="CASCADE"))
+    product = relationship("Product", back_populates="photo")
