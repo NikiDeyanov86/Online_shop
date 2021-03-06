@@ -20,7 +20,7 @@ class User(Base):
 
     @property
     def is_authenticated(self):
-        return self.login_id != 0
+        return self.login_id
 
     @property
     def is_active(self):

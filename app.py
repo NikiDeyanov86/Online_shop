@@ -30,13 +30,17 @@ if not ADMIN:
     db_session.add(ADMIN)
     db_session.commit()
 
+    print("Super admin created")
+else:
+    print("Super admin already exists")
+
 
 def admin_login_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
         if not current_user.is_authenticated:
             return redirect(url_for('admin_login'))
-        role = login_manager.reload_user().get_role()
+        role = current_user.get_role()
         if role != "admin":
             return login_manager.unauthorized()
         return func(*args, **kwargs)
@@ -111,7 +115,7 @@ def admin_register():
         email = request.form['email']
         password = generate_password_hash(request.form['password'])
 
-        user = User(email=email, password=password)
+        user = User(email=email, password=password, role="admin")
 
         db_session.add(user)
         db_session.commit()
@@ -130,7 +134,7 @@ def admin_login():
         email = request.form['email']
         password = request.form['password']
 
-        user = User.query.filter(User.email == email).first()
+        user = User.query.filter_by(email=email, role="admin").first()
 
         if user and check_password_hash(user.password, password):
             user.login_id = str(uuid.uuid4())
