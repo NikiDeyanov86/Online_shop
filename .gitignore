@@ -1,11 +1,11 @@
 # config files
-config.py
+/config.py
 
 # IDE folders
 .vscode/
 
 # database
-test.db
+/test.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
