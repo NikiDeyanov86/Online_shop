@@ -16,23 +16,26 @@ from models import User, Product, Category, Photo
 
 from datetime import datetime
 
-import config
+from config import SECRET_KEY, EMAIL, PASSWORD
+from utils import validate_file_type
 
 app = Flask(__name__)
-app.secret_key = config.SECRET_KEY
+app.secret_key = SECRET_KEY
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
+app.config['UPLOAD_FOLDER'] = './uploads'
+
 login_manager.init_app(app)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 # 16MB
-app.config['UPLOAD_FOLDER'] = '/tmp/flask/uploads'
+init_db()
 
 app.add_url_rule('/uploads/<filename>', 'uploaded_file', build_only=True)
 app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
     '/uploads':  app.config['UPLOAD_FOLDER']
 })
-init_db()
 
-ADMIN = User.query.filter_by(email=config.EMAIL, role="admin").first()
+
+ADMIN = User.query.filter_by(email=EMAIL, role="admin").first()
 if not ADMIN:
-    ADMIN = User(email=config.EMAIL, password=config.PASSWORD, role="admin")
+    ADMIN = User(email=EMAIL, password=PASSWORD, role="admin")
 
     db_session.add(ADMIN)
     db_session.commit()
@@ -108,7 +111,8 @@ def login():
 @admin_login_required
 def admin():
     if request.method == 'GET':
-        return render_template('admin.html', categories=Category.query.all())
+        # Nothing special will happen here
+        pass
 
     elif request.form['Submit'] == 'Category':
         name = request.form['category_name']
@@ -116,17 +120,44 @@ def admin():
 
         db_session.add(new_category)
         db_session.commit()
-
-        return render_template('admin.html', categories=Category.query.all())
-
     else:
         name = request.form['product_name']
+        description = request.form['product_description']
         category = request.form['product_category']
         price = request.form['product_price']
-        photo = request.form['product_photo']
 
-        new_product
-        return render_template('admin.html', categories=Category.query.all())
+        category_id = Category.query.filter_by(name=category).first().id
+
+        new_product = Product(name=name, description=description,
+                              price=price, category_id=category_id)
+
+        db_session.add(new_product)
+        db_session.commit()
+
+        new_product = Product.query.filter_by(
+            name=name, description=description,
+            price=price, category_id=category_id).first()
+
+        if 'product_pic' in request.files and request.files['product_pic']:
+            file = request.files['product_pic']
+            filename = secure_filename(file.filename)
+
+            if validate_file_type(filename, ["jpeg", "jpg", "png"]):
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+                print(new_product.id)
+
+                photo = Photo(
+                    address=f'/uploads/{filename}', product_id=new_product.id)
+
+                db_session.add(photo)
+
+        db_session.commit()
+
+    categories = Category.query.all()
+    products = Product.query.all()
+
+    return render_template('admin.html', categories=categories, products=products, db_session=db_session, Product=Product, Photo=Photo)
 
 
 @app.route('/admin/register', methods=['GET', 'POST'])
@@ -171,6 +202,14 @@ def admin_login():
         else:
             # Invalid
             pass
+
+
+@app.route('/admin/product/<int:product_id>')
+@admin_login_required
+def admin_product_details(product_id):
+    product = Product.query.filter_by(id=product_id).first()
+
+    return render_template("admin_product_details.html", product=product, db_session=db_session, Product=Product, Photo=Photo)
 
 
 @ app.route('/logout')
