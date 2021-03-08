@@ -16,7 +16,7 @@
         href="https://fonts.googleapis.com/css?family=Poppins:200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i&display=swap"
         rel="stylesheet">
 
-    <!-- StyleSheet -->
+
 
     <!-- Bootstrap -->
     <!-- <link rel="stylesheet" href="/static/css/bootstrap.css"> -->
@@ -56,7 +56,44 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
         crossorigin="anonymous"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> -->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
+
+    <script>
+        $(function () {
+            var availableTags = [
+                "ActionScript",
+                "AppleScript",
+                "Asp",
+                "BASIC",
+                "C",
+                "C++",
+                "Clojure",
+                "COBOL",
+                "ColdFusion",
+                "Erlang",
+                "Fortran",
+                "Groovy",
+                "Haskell",
+                "Java",
+                "JavaScript",
+                "Lisp",
+                "Perl",
+                "PHP",
+                "Python",
+                "Ruby",
+                "Scala",
+                "Scheme"
+            ];
+            $("#tags").autocomplete({
+                source: availableTags
+            });
+        });
+    </script>
 
     <style>
         @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css");
@@ -89,24 +126,17 @@
                             <a href="/"><img src="/static/images/logo.png" alt="logo"></a>
                         </div>
                         <!--/ End Logo -->
-                        <!-- Search Form -->
-                        <div class="search-top">
-                            <div class="top-search"><a href="#0"><i class="ti-search"></i></a></div>
-                            <!-- Search Form -->
-                            <div class="search-top">
-                                <form class="search-form">
-                                    <input type="text" placeholder="Search here..." name="search">
-                                    <button value="search" type="submit"><i class="ti-search"></i></button>
-                                </form>
-                            </div>
-                            <!--/ End Search Form -->
-                        </div>
-                        <!--/ End Search Form -->
+
+
+
                         <div class="mobile-nav"></div>
                     </div>
                     <div class="col-lg-8 col-md-7 col-12">
+                        <!-- Search Form -->
                         <div class="search-bar-top">
+                            <p id="datalist"></p>
                             <div class="search-bar">
+
                                 <select>
                                     <option selected="selected">All Category</option>
                                     <option>watch</option>
@@ -114,20 +144,18 @@
                                     <option>kid’s item</option>
                                 </select>
                                 <form>
-                                    <input name="search" placeholder="Search Products Here....." type="search">
+                                    <input name="search" placeholder="Search Products Here....." type="text">
                                     <button class="btnn"><i class="ti-search"></i></button>
                                 </form>
                             </div>
                         </div>
+                        <!--/ End Search Form -->
                     </div>
                     <div class="col-lg-2 col-md-3 col-12">
                         <div class="right-bar">
                             <!-- Search Form -->
-                            <div class="sinlge-bar">
-                                <a href="#" class="single-icon"><i class="fa fa-heart-o" aria-hidden="true"></i></a>
-                            </div>
                             <div class="sinlge-bar shopping">
-                                <a href="/login" class="single-icon"><i class="fa fa-user-circle-o"
+                                <a href="/admin" class="single-icon"><i class="fa fa-user-circle-o"
                                         aria-hidden="true"></i></a>
                                 <div class="shopping-item">
 
@@ -158,6 +186,11 @@
     <!-- Content will go here -->
     {% block content %}
     {% endblock %}
+
+    <div class="ui-widget">
+        <label for="tags">Tags: </label>
+        <input id="tags">
+    </div>
 
     <!-- Start Footer Area -->
     <footer class="footer">
@@ -242,6 +275,7 @@
                             <div class="left">
                                 <p>Copyright © 2021 <a href="http://www.wpthemesgrid.com" target="_blank">Elsys</a> -
                                     All Rights Reserved.</p>
+                                    <a href="/admin" class="single-icon"><i class="bi bi-shield-lock" aria-hidden="true" style="color: #ffffff;"></i></a>
                             </div>
                         </div>
                         <div class="col-lg-6 col-12">
@@ -256,5 +290,28 @@
     </footer>
     <!-- /End Footer Area -->
 </body>
+
+<!-- <script>
+    $(document).ready(function () {
+        $("#livebox").on("input", function (e) {
+            text_livebox = $("#livebox").val();
+            $("#datalist").empty();
+            $.ajax({
+                method: "post",
+                url: "/livesearch",
+                data: { text: text_livebox },
+                success: function (res) {
+                    console.log(res);
+                    var data = "<ul>";
+                    $.each(res, function (index, value) {
+                        data += "<li>" + value.word_eng + "<li>";
+                    });
+                    data += "</ul>";
+                    $("#datalist").html(data);
+                }
+            })
+        })
+    })
+</script> -->
 
 </html>
