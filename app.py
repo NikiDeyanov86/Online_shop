@@ -1,7 +1,7 @@
 import uuid
 import os
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask import render_template, request, redirect, make_response, url_for
 from functools import wraps
 
@@ -12,7 +12,7 @@ from werkzeug.utils import secure_filename
 
 from database import db_session, init_db
 from login import login_manager
-from models import User, Product, Category, Photo
+from models import User, Product, Category, Photo, Wishlist
 
 from datetime import datetime
 
@@ -64,7 +64,7 @@ def shutdown_context(exception=None):
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('index.html', products=Product.query.all(), db_session=db_session, Photo=Photo, Product=Product)  # TODO ask boyko is this ok
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -212,8 +212,8 @@ def admin_product_details(product_id):
     return render_template("admin_product_details.html", product=product, db_session=db_session, Product=Product, Photo=Photo)
 
 
-@ app.route('/logout')
-@ login_required
+@app.route('/logout')
+@login_required
 def logout():
     current_user.login_id = None
     db_session.commit()
@@ -222,6 +222,29 @@ def logout():
     return redirect(url_for('home'))
 
 
-@ app.route('/cart')
+@app.route('/cart')
 def cart():
     return render_template('cart.html')
+
+
+@app.route('/wishlist')
+def wishlist():
+    return render_template('wishlist.html', current_user=current_user)
+
+
+@app.route('/<int:product_id>/_add_to_wishlist', methods=['GET', 'POST'])
+@login_required
+def add_to_wishlist(product_id):
+    if request.method == 'GET':
+        # Nothing special will happen here
+        pass
+
+    elif request.method == 'POST':
+        product_id = product_id
+        user_id = current_user.id
+        wish = Wishlist(product_id=product_id, user_id=user_id)
+        db_session.add(wish)
+        db_session.commit()
+
+        return redirect(url_for('home'))
+

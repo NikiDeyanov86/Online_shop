@@ -11,6 +11,9 @@ class User(Base):
     password = Column(String(80), nullable=False)
     login_id = Column(String(36), nullable=True)
 
+    wishlist = relationship("Wishlist", back_populates="user",
+                            cascade="all, delete", passive_deletes=True)
+
     # role is 'basic' or 'admin'
     role = Column(String(6), default="basic")
 
@@ -64,6 +67,9 @@ class Product(Base):
     photo = relationship("Photo", back_populates="product",
                          cascade="all, delete", passive_deletes=True)
 
+    wishlist = relationship("Wishlist", back_populates="product",
+                            cascade="all, delete", passive_deletes=True)
+
 
 class Photo(Base):
     __tablename__ = 'Photo'
@@ -74,3 +80,16 @@ class Photo(Base):
     product_id = Column(Integer, ForeignKey(
         'Product.id', ondelete="CASCADE"))
     product = relationship("Product", back_populates="photo")
+
+
+class Wishlist(Base):
+    __tablename__ = 'Wishlist'
+
+    id = Column(Integer, primary_key=True)
+    product_id = Column(Integer, ForeignKey(
+        'Product.id', ondelete="CASCADE"))
+    product = relationship("Product", back_populates="wishlist")
+
+    user_id = Column(Integer, ForeignKey(
+        'User.id', ondelete="CASCADE"))
+    user = relationship("User", back_populates="wishlist")
