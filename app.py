@@ -234,6 +234,12 @@ def logout():
     return redirect(url_for('home'))
 
 
+@app.route('/cart')
+@login_required
+def cart():
+    return render_template('cart.html', cart=Cart.query.filter_by(user_id=current_user.id).all(), db_session=db_session, Product=Product, Photo=Photo, Cart=Cart)
+
+
 @app.route('/_add_to_cart')
 @login_required
 def _add_to_cart():
@@ -247,18 +253,22 @@ def _add_to_cart():
     return jsonify(result="Success")
 
 
-@app.route('/cart')
+@app.route('/_remove_from_cart')
 @login_required
-def cart():
-    products = db_session.query(Cart).outerjoin(
-        Product).outerjoin(User).filter(User.id == current_user.id).all()
+def _remove_from_cart():
+    product_id = request.args.get('product_id', type=int)
 
-    return render_template('cart.html', products=products)
+    cart = Cart.query.filter_by(product_id=product_id, user_id=current_user.id).first()
+
+    db_session.delete(cart)
+    db_session.commit()
+
+    return jsonify(result="Deleted")
 
 
 @app.route('/wishlist')
 def wishlist():
-    return render_template('wishlist.html', wishlist=Wishlist.query.all(), db_session=db_session, Product=Product, Photo=Photo, Wishlist=Wishlist)  # TODO .filter_by(user_id=current_user.id) ??
+    return render_template('wishlist.html', wishlist=Wishlist.query.filter_by(user_id=current_user.id).all(), db_session=db_session, Product=Product, Photo=Photo, Wishlist=Wishlist)
 
 
 @app.route('/_add_to_wishlist')
@@ -273,6 +283,19 @@ def add_to_wishlist():
     db_session.commit()
 
     return jsonify(result="Success")
+
+
+@app.route('/_remove_from_wishlist')
+@login_required
+def _remove_from_wishlist():
+    product_id = request.args.get('product_id', type=int)
+
+    wish = Wishlist.query.filter_by(product_id=product_id, user_id=current_user.id).first()
+
+    db_session.delete(wish)
+    db_session.commit()
+
+    return jsonify(result="Deleted")
 
 
 @ app.route('/shop_grid')

@@ -113,3 +113,10 @@ class Cart(Base):
 
     user = relationship("User", back_populates="cart")
     product = relationship("Product", back_populates="cart")
+
+
+class Order(Base):
+    __tablename__ = 'Order'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('User.id', ondelete="CASCADE"))

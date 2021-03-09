@@ -4,14 +4,14 @@
 
 {% block content %}
 
-{{ products }} <br>
-{{ products.__dict__ }} <br>
-<hr>
-{% for product in products %}
-{{ product }} <br>
-{{ product.__dict__ }} <br>
-<hr>
-{% endfor %}
+{#{{ products }} <br>#}
+{#{{ products.__dict__ }} <br>#}
+{#<hr>#}
+{#{% for product in products %}#}
+{#{{ product }} <br>#}
+{#{{ product.__dict__ }} <br>#}
+{#<hr>#}
+{#{% endfor %}#}
 
 <!-- Breadcrumbs -->
 <div class="breadcrumbs">
@@ -35,6 +35,7 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-12">
+
 				<!-- Shopping Summery -->
 				<table class="table shopping-summery">
 					<thead>
@@ -48,29 +49,30 @@
 						</tr>
 					</thead>
 					<tbody>
-						{% for product in products %}
+
+						{% for product in cart %}
 						<tr>
-							<td class="image" data-title="No"><img src="https://via.placeholder.com/100x100" alt="#">
+							<td class="image" data-title="No"><img src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.product_id).first().address }}" onerror=this.src="../static/images/no-image-icon.png" style="width: 100px; height: 100px">
 							</td>
 							<td class="product-des" data-title="Description">
-								<p class="product-name"><a href="#">{{ product.name }}</a></p>
-								<p class="product-des">{{ product.description }}</p>
+								<p class="product-name"><a href="#">{{ db_session.query(Product).filter(Product.id==product.product_id).first().name }}</a></p>
+								<p class="product-des">{{ db_session.query(Product).filter(Product.id==product.product_id).first().description }}</p>
 							</td>
-							<td class="price" data-title="Price"><span>${{ product.price }} </span></td>
+							<td class="price" data-title="Price"><span>${{ db_session.query(Product).filter(Product.id==product.product_id).first().price }} </span></td>
 							<td class="qty" data-title="Qty">
 								<!-- Input Order -->
 								<div class="input-group">
 									<div class="button minus">
 										<button type="button" class="btn btn-primary btn-number" disabled="disabled"
-											data-type="minus" data-field="quant[1]">
+											data-type="minus" data-field="quant[{{ product.product_id }}]">
 											<em class="ti-minus"></em>
 										</button>
 									</div>
-									<input type="text" name="quant[1]" class="input-number" data-min="1" data-max="100"
+									<input type="text" name="quant[{{ product.product_id }}]" class="input-number" data-min="1" data-max="100"
 										value="1">
 									<div class="button plus">
 										<button type="button" class="btn btn-primary btn-number" data-type="plus"
-											data-field="quant[1]">
+											data-field="quant[{{ product.product_id }}]">
 											<em class="ti-plus"></em>
 										</button>
 									</div>
@@ -78,79 +80,102 @@
 								<!--/ End Input Order -->
 							</td>
 							<td class="total-amount" data-title="Total"><span>$220.88</span></td>
-							<td class="action" data-title="Remove"><a href="#"><i class="ti-trash remove-icon"></i></a>
+							<td class="action" data-title="Remove"><a href="#" id="remove_{{ product.product_id }}"><i class="ti-trash remove-icon"></i></a>
+
+
+                                <script type=text/javascript>
+                                    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+                                </script>
+
+                                <script type=text/javascript>
+                                    $(function() {
+                                        $('a#remove_{{ product.product_id }}').bind('click', function() {
+                                        $.getJSON($SCRIPT_ROOT + '/_remove_from_cart', {
+                                            product_id: {{ product.product_id }}
+                                        }, function(data) {
+                                            $("#result_{{ product.product_id }}").text(data.result);
+                                            location.reload()
+                                        });
+                                        return false;
+                                        });
+                                    });
+                                </script>
+
 							</td>
 						</tr>
 						{% endfor %}
-						<tr>
-							<td class="image" data-title="No"><img src="https://via.placeholder.com/100x100" alt="#">
-							</td>
-							<td class="product-des" data-title="Description">
-								<p class="product-name"><a href="#">Women Dress</a></p>
-								<p class="product-des">Maboriosam in a tonto nesciung eget distingy magndapibus.</p>
-							</td>
-							<td class="price" data-title="Price"><span>$110.00 </span></td>
-							<td class="qty" data-title="Qty">
-								<!-- Input Order -->
-								<div class="input-group">
-									<div class="button minus">
-										<button type="button" class="btn btn-primary btn-number" disabled="disabled"
-											data-type="minus" data-field="quant[2]">
-											<i class="ti-minus"></i>
-										</button>
-									</div>
-									<input type="text" name="quant[2]" class="input-number" data-min="1" data-max="100"
-										value="2">
-									<div class="button plus">
-										<button type="button" class="btn btn-primary btn-number" data-type="plus"
-											data-field="quant[2]">
-											<i class="ti-plus"></i>
-										</button>
-									</div>
-								</div>
-								<!--/ End Input Order -->
-							</td>
-							<td class="total-amount" data-title="Total"><span>$220.88</span></td>
-							<td class="action" data-title="Remove"><a href="#"><i class="ti-trash remove-icon"></i></a>
-							</td>
-						</tr>
-						<tr>
-							<td class="image" data-title="No"><img src="https://via.placeholder.com/100x100" alt="#">
-							</td>
-							<td class="product-des" data-title="Description">
-								<p class="product-name"><a href="#">Women Dress</a></p>
-								<p class="product-des">Maboriosam in a tonto nesciung eget distingy magndapibus.</p>
-							</td>
-							<td class="price" data-title="Price"><span>$110.00 </span></td>
-							<td class="qty" data-title="Qty">
-								<!-- Input Order -->
-								<div class="input-group">
-									<div class="button minus">
-										<button type="button" class="btn btn-primary btn-number" disabled="disabled"
-											data-type="minus" data-field="quant[3]">
-											<i class="ti-minus"></i>
-										</button>
-									</div>
-									<input type="text" name="quant[3]" class="input-number" data-min="1" data-max="100"
-										value="3">
-									<div class="button plus">
-										<button type="button" class="btn btn-primary btn-number" data-type="plus"
-											data-field="quant[3]">
-											<i class="ti-plus"></i>
-										</button>
-									</div>
-								</div>
-								<!--/ End Input Order -->
-							</td>
-							<td class="total-amount" data-title="Total"><span>$220.88</span></td>
-							<td class="action" data-title="Remove"><a href="#"><i class="ti-trash remove-icon"></i></a>
-							</td>
-						</tr>
+
+{#						<tr>#}
+{#							<td class="image" data-title="No"><img src="https://via.placeholder.com/100x100" alt="#">#}
+{#							</td>#}
+{#							<td class="product-des" data-title="Description">#}
+{#								<p class="product-name"><a href="#">Women Dress</a></p>#}
+{#								<p class="product-des">Maboriosam in a tonto nesciung eget distingy magndapibus.</p>#}
+{#							</td>#}
+{#							<td class="price" data-title="Price"><span>$110.00 </span></td>#}
+{#							<td class="qty" data-title="Qty">#}
+{#								<!-- Input Order -->#}
+{#								<div class="input-group">#}
+{#									<div class="button minus">#}
+{#										<button type="button" class="btn btn-primary btn-number" disabled="disabled"#}
+{#											data-type="minus" data-field="quant[2]">#}
+{#											<i class="ti-minus"></i>#}
+{#										</button>#}
+{#									</div>#}
+{#									<input type="text" name="quant[2]" class="input-number" data-min="1" data-max="100"#}
+{#										value="2">#}
+{#									<div class="button plus">#}
+{#										<button type="button" class="btn btn-primary btn-number" data-type="plus"#}
+{#											data-field="quant[2]">#}
+{#											<i class="ti-plus"></i>#}
+{#										</button>#}
+{#									</div>#}
+{#								</div>#}
+{#								<!--/ End Input Order -->#}
+{#							</td>#}
+{#							<td class="total-amount" data-title="Total"><span>$220.88</span></td>#}
+{#							<td class="action" data-title="Remove"><a href="#"><i class="ti-trash remove-icon"></i></a>#}
+{#							</td>#}
+{#						</tr>#}
+{#						<tr>#}
+{#							<td class="image" data-title="No"><img src="https://via.placeholder.com/100x100" alt="#">#}
+{#							</td>#}
+{#							<td class="product-des" data-title="Description">#}
+{#								<p class="product-name"><a href="#">Women Dress</a></p>#}
+{#								<p class="product-des">Maboriosam in a tonto nesciung eget distingy magndapibus.</p>#}
+{#							</td>#}
+{#							<td class="price" data-title="Price"><span>$110.00 </span></td>#}
+{#							<td class="qty" data-title="Qty">#}
+{#								<!-- Input Order -->#}
+{#								<div class="input-group">#}
+{#									<div class="button minus">#}
+{#										<button type="button" class="btn btn-primary btn-number" disabled="disabled"#}
+{#											data-type="minus" data-field="quant[3]">#}
+{#											<i class="ti-minus"></i>#}
+{#										</button>#}
+{#									</div>#}
+{#									<input type="text" name="quant[3]" class="input-number" data-min="1" data-max="100"#}
+{#										value="3">#}
+{#									<div class="button plus">#}
+{#										<button type="button" class="btn btn-primary btn-number" data-type="plus"#}
+{#											data-field="quant[3]">#}
+{#											<i class="ti-plus"></i>#}
+{#										</button>#}
+{#									</div>#}
+{#								</div>#}
+{#								<!--/ End Input Order -->#}
+{#							</td>#}
+{#							<td class="total-amount" data-title="Total"><span>$220.88</span></td>#}
+{#							<td class="action" data-title="Remove"><a href="#"><i class="ti-trash remove-icon"></i></a>#}
+{#							</td>#}
+{#						</tr>#}
 					</tbody>
 				</table>
 				<!--/ End Shopping Summery -->
 			</div>
 		</div>
+
+
 		<div class="row">
 			<div class="col-12">
 				<!-- Total Amount -->

@@ -27,7 +27,7 @@
 								<div class="tab-pane fade show active" id="man" role="tabpanel">
 									<div class="tab-single">
 										<div class="row">
-                                        {{ wishlist.__dict__ }}
+
                                             {% for wish in wishlist %}
                                                 <div class="col-xl-3 col-lg-4 col-md-4 col-12">
                                                     <div class="single-product">
@@ -39,7 +39,28 @@
                                                             <div class="button-head">
                                                                 <div class="product-action">
                                                                     <a data-toggle="modal" data-target="#exampleModal" title="Quick View" href="#"><i class=" ti-eye"></i><span>Quick Shop</span></a>
-{#                                                                    <a title="Wishlist" id="" href="/{{ db_session.query(Product).outerjoin(Wishlist).filter(Product.id==Wishlist.product_id).first().id }}/_add_to_wishlist"><i class=" ti-heart "></i><span>Add to Wishlist</span></a>#} <!-- TODO make heart button full when liked -->
+                                                                    <a title="Wishlist" id="remove_{{ wish.product_id }}" href="#"><i class="fa fa-heart"></i><span>Remove from wishlist</span></a> <!-- TODO make heart button full when liked -->
+
+
+                                                                    <script type=text/javascript>
+                                                                        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+                                                                    </script>
+
+                                                                    <script type=text/javascript>
+                                                                        $(function() {
+                                                                            $('a#remove_{{ wish.product_id }}').bind('click', function() {
+                                                                            $.getJSON($SCRIPT_ROOT + '/_remove_from_wishlist', {
+                                                                                product_id: {{ wish.product_id }}
+                                                                            }, function(data) {
+                                                                                $("#result_{{ wish.product_id }}").text(data.result);
+                                                                                location.reload()
+                                                                            });
+                                                                            return false;
+                                                                            });
+                                                                        });
+                                                                    </script>
+
+
                                                                     <a title="Compare" href="#"><i class="ti-bar-chart-alt"></i><span>Add to Compare</span></a>
                                                                 </div>
                                                                 <div class="product-action-2">
