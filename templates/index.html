@@ -54,6 +54,9 @@
 </head>
 
 <body class="js">
+	<script type=text/javascript>
+		$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+	</script>
 
 	<!-- Header -->
 	<header class="header shop">
@@ -69,12 +72,27 @@
 						<!--/ End Logo -->
 						<!-- Search Form -->
 						<div class="search-top">
-							<div class="top-search"><a href="#0"><i class="ti-search"></i></a></div>
+							<div class="top-search"><a href="#0"><em class="ti-search"></em></a></div>
 							<!-- Search Form -->
 							<div class="search-top">
 								<form class="search-form">
-									<input type="text" placeholder="Search here..." name="search">
-									<button value="search" type="submit"><i class="ti-search"></i></button>
+									<script type=text/javascript>
+									$(document).ready(function(){
+										$("input").on("input", function(){
+											s_text = $("input[name='search2']").val()
+											// console.log($(this))
+											$.getJSON($SCRIPT_ROOT + '/_livesearch', {
+													text: s_text,
+												}, function(data) {
+													// $("#search_results").text(data.result);
+													console.log(data)
+												});
+												return false;
+										});
+									});
+									</script>
+									<input type="text" placeholder="Search here..." name="search1" id="search_field">
+									<button value="search" type="submit"><em class="ti-search"></em></button>
 								</form>
 							</div>
 							<!--/ End Search Form -->
@@ -92,8 +110,8 @@
 									<option>kid’s item</option>
 								</select>
 								<form>
-									<input name="search" placeholder="Search Products Here....." type="search">
-									<button class="btnn"><i class="ti-search"></i></button>
+									<input name="search2" placeholder="Search Products Here....." type="search">
+									<button class="btnn"><em class="ti-search"></em></button>
 								</form>
 							</div>
 						</div>
@@ -131,8 +149,10 @@
 
 							</div>
 							<div class="sinlge-bar shopping">
-								<a href="/cart" class="single-icon"><i class="ti-bag"></i> <span
-										class="total-count">2</span></a>
+								<a href="/cart" class="single-icon">
+									<em class="ti-bag"></em>
+									<span class="total-count">2</span>
+								</a>
 								<!-- Shopping Item -->
 								<div class="shopping-item">
 									<div class="dropdown-cart-header">
@@ -141,18 +161,22 @@
 									</div>
 									<ul class="shopping-list">
 										<li>
-											<a href="#" class="remove" title="Remove this item"><i
-													class="fa fa-remove"></i></a>
-											<a class="cart-img" href="#"><img src="https://via.placeholder.com/70x70"
-													alt="#"></a>
+											<a href="#" class="remove" title="Remove this item">
+												<em class="fa fa-remove"></em>
+											</a>
+											<a class="cart-img" href="#">
+												<img src="https://via.placeholder.com/70x70" alt="#">
+											</a>
 											<h4><a href="#">Woman Ring</a></h4>
 											<p class="quantity">1x - <span class="amount">$99.00</span></p>
 										</li>
 										<li>
-											<a href="#" class="remove" title="Remove this item"><i
-													class="fa fa-remove"></i></a>
-											<a class="cart-img" href="#"><img src="https://via.placeholder.com/70x70"
-													alt="#"></a>
+											<a href="#" class="remove" title="Remove this item">
+												<em class="fa fa-remove"></em>
+											</a>
+											<a class="cart-img" href="#">
+												<img src="https://via.placeholder.com/70x70" alt="#">
+											</a>
 											<h4><a href="#">Woman Necklace</a></h4>
 											<p class="quantity">1x - <span class="amount">$35.00</span></p>
 										</li>
@@ -395,10 +419,6 @@
 							<!--/ End Tab Nav -->
 						</div>
 
-						<script type=text/javascript>
-							$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-						</script>
-
 						<div class="tab-content" id="myTabContent">
 							<!-- Start Single Tab -->
 							<div class="tab-pane fade show active" id="man" role="tabpanel">
@@ -411,10 +431,12 @@
 													<a href="product-details.html">
 														<img class="default-img"
 															src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
-															onerror=this.src="../static/images/no-image-icon.png">
+															onerror=this.src="../static/images/no-image-icon.png"
+															alt="">
 														<img class="hover-img"
 															src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
-															onerror=this.src="../static/images/no-image-icon.png">
+															onerror=this.src="../static/images/no-image-icon.png"
+															alt="">
 													</a>
 													<div class="button-head">
 														<div class="product-action">
@@ -435,8 +457,7 @@
 																	});
 																});
 															</script>
-															<a title="Wishlist" id="wish_{{ product.id }}"
-																href="#">
+															<a title="Wishlist" id="wish_{{ product.id }}" href="#">
 																<em class=" ti-heart "></em>
 																<span>Add to Wishlist</span>
 															</a>
@@ -458,7 +479,8 @@
 																	});
 																});
 															</script>
-															<a title="Add to cart" href="#" id="cart_{{ product.id }}">Add to
+															<a title="Add to cart" href="#"
+																id="cart_{{ product.id }}">Add to
 																cart</a>
 															<span id="result_{{ product.id }}"></span>
 														</div>
@@ -814,40 +836,40 @@
 													{# </div>#}
 												{# </div>#}
 											{# </div>#}
-										 <div class="col-xl-3 col-lg-4 col-md-4 col-12">
-											 <div class="single-product">
-												 <div class="product-img">
-													 <a href="product-details.html">
-														 <img class="default-img"
+										<div class="col-xl-3 col-lg-4 col-md-4 col-12">
+											<div class="single-product">
+												<div class="product-img">
+													<a href="product-details.html">
+														<img class="default-img"
 															src="https://via.placeholder.com/550x750" alt="#">
-														 <img class="hover-img"
-															src="https://via.placeholder.com/550x750" alt="#">
-														 </a>
-													 <div class="button-head">
-														 <div class="product-action">
-															 <a data-toggle="modal" data-target="#exampleModal"
+														<img class="hover-img" src="https://via.placeholder.com/550x750"
+															alt="#">
+													</a>
+													<div class="button-head">
+														<div class="product-action">
+															<a data-toggle="modal" data-target="#exampleModal"
 																title="Quick View" href="#"><i
 																	class=" ti-eye"></i><span>Quick Shop</span></a>
-															 <a title="Wishlist" href="#"><i
+															<a title="Wishlist" href="#"><i
 																	class=" ti-heart "></i><span>Add to
 																	Wishlist</span></a>
-															 <a title="Compare" href="#"><i
+															<a title="Compare" href="#"><i
 																	class="ti-bar-chart-alt"></i><span>Add to
 																	Compare</span></a>
-															 </div>
-														 <div class="product-action-2">
-															 <a title="Add to cart" href="#">Add to cart</a>
-															 </div>
-														 </div>
-													 </div>
-												 <div class="product-content">
-													 <h3><a href="product-details.html">Awesome Pink Show</a></h3>
-													 <div class="product-price">
-														 <span>$29.00</span>
-														 </div>
-													 </div>
-												 </div>
-											 </div>
+														</div>
+														<div class="product-action-2">
+															<a title="Add to cart" href="#">Add to cart</a>
+														</div>
+													</div>
+												</div>
+												<div class="product-content">
+													<h3><a href="product-details.html">Awesome Pink Show</a></h3>
+													<div class="product-price">
+														<span>$29.00</span>
+													</div>
+												</div>
+											</div>
+										</div>
 										{# <div class="col-xl-3 col-lg-4 col-md-4 col-12">#}
 											{# <div class="single-product">#}
 												{# <div class="product-img">#}
@@ -1062,7 +1084,8 @@
 													{# </div>#}
 												{# </div>#}
 											{# </div>#}
-										{# </div>#}
+										{#
+									</div>#}
 									{# </div>#}
 								{# </div>#}
 							{#

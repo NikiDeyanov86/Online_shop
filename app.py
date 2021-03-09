@@ -22,6 +22,7 @@ from datetime import datetime
 from config import SECRET_KEY, EMAIL, PASSWORD
 from utils import validate_file_type
 from flask.json import jsonify
+import json
 
 app = Flask(__name__)
 
@@ -237,7 +238,10 @@ def logout():
 @app.route('/cart')
 @login_required
 def cart():
-    return render_template('cart.html', cart=Cart.query.filter_by(user_id=current_user.id).all(), db_session=db_session, Product=Product, Photo=Photo, Cart=Cart)
+    return render_template(
+        'cart.html', cart=Cart.query.filter_by(
+            user_id=current_user.id).all(), db_session=db_session,
+        Product=Product, Photo=Photo, Cart=Cart)
 
 
 @app.route('/_add_to_cart')
@@ -258,7 +262,8 @@ def _add_to_cart():
 def _remove_from_cart():
     product_id = request.args.get('product_id', type=int)
 
-    cart = Cart.query.filter_by(product_id=product_id, user_id=current_user.id).first()
+    cart = Cart.query.filter_by(
+        product_id=product_id, user_id=current_user.id).first()
 
     db_session.delete(cart)
     db_session.commit()
@@ -268,7 +273,10 @@ def _remove_from_cart():
 
 @app.route('/wishlist')
 def wishlist():
-    return render_template('wishlist.html', wishlist=Wishlist.query.filter_by(user_id=current_user.id).all(), db_session=db_session, Product=Product, Photo=Photo, Wishlist=Wishlist)
+    return render_template(
+        'wishlist.html', wishlist=Wishlist.query.filter_by(
+            user_id=current_user.id).all(), db_session=db_session,
+        Product=Product, Photo=Photo, Wishlist=Wishlist)
 
 
 @app.route('/_add_to_wishlist')
@@ -290,7 +298,8 @@ def add_to_wishlist():
 def _remove_from_wishlist():
     product_id = request.args.get('product_id', type=int)
 
-    wish = Wishlist.query.filter_by(product_id=product_id, user_id=current_user.id).first()
+    wish = Wishlist.query.filter_by(product_id=product_id,
+                                    user_id=current_user.id).first()
 
     db_session.delete(wish)
     db_session.commit()
@@ -318,12 +327,37 @@ def blog_single_sidebar():
     return render_template('blog-single-sidebar.html')
 
 
-# @app.route('/livesearch', methods=["POST", "GET"])
-# @admin_login_required
-# def livesearch():
-#     searchbox = request.form.get("text")
-#     cursor = db_session.connection.cursor()
-#     query = "select word_eng from words where word_eng LIKE '{}%' order by word_eng".format(searchbox)
-#     cursor.execute(query)
-#     result = cursor.fetchall() 
-#     return jsonify(result)
+@app.route('/_livesearch')
+def livesearch():
+    text = request.args.get('text', type=str)
+
+    search = f"%{text}%"
+    print(search)
+    products_by_name = Product.query.filter(Product.name.like(search)).all()
+    products_by_desc = Product.query.filter(
+        Product.description.like(search)).all()
+
+    result_by_name = {product for product in products_by_name}
+    result_by_desc = {product for product in products_by_desc}
+
+    result = result_by_name.union(result_by_desc)
+
+    class JsonProduct:
+        def __init__(self, id, name, description, price, rating, rated):
+            self.id = id
+            self.name = name
+            self.description = description
+            self.price = price
+            self.rating = rating
+            self.rated = rated
+
+        def to_json(self):
+            return self.__dict__
+
+    result = [JsonProduct(
+        r.id, r.name, r.description,
+        r.price, r.rating, r.rated).to_json() for r in result]
+
+    print(result)
+
+    return jsonify(result)
