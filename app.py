@@ -115,30 +115,6 @@ def login():
             return redirect(url_for('home'))
 
 
-@app.route('/_add_to_cart')
-@login_required
-def _add_to_cart():
-    print("Here")
-    product_id = request.args.get('product_id', type=int)
-    print(product_id)
-
-    cart = Cart(product_id=product_id, user_id=current_user.id)
-
-    db_session.add(cart)
-    db_session.commit()
-
-    return jsonify(result="Product added succesfully")
-
-
-@app.route('/cart')
-@login_required
-def cart():
-    products = db_session.query(Cart).outerjoin(
-        Product).outerjoin(User).filter(User.id == current_user.id).all()
-
-    return render_template('cart.html', products=products)
-
-
 @app.route('/admin', methods=['GET', 'POST'])
 @admin_login_required
 def admin():
@@ -258,22 +234,45 @@ def logout():
     return redirect(url_for('home'))
 
 
+@app.route('/_add_to_cart')
+@login_required
+def _add_to_cart():
+    product_id = request.args.get('product_id', type=int)
+
+    cart = Cart(product_id=product_id, user_id=current_user.id)
+
+    db_session.add(cart)
+    db_session.commit()
+
+    return jsonify(result="Success")
+
+
+@app.route('/cart')
+@login_required
+def cart():
+    products = db_session.query(Cart).outerjoin(
+        Product).outerjoin(User).filter(User.id == current_user.id).all()
+
+    return render_template('cart.html', products=products)
+
+
 @app.route('/wishlist')
 def wishlist():
     return render_template('wishlist.html', wishlist=Wishlist.query.all(), db_session=db_session, Product=Product, Photo=Photo, Wishlist=Wishlist)  # TODO .filter_by(user_id=current_user.id) ??
 
 
-@app.route('/<int:product_id>/_add_to_wishlist', methods=['GET', 'POST'])
+@app.route('/_add_to_wishlist')
 @login_required
-def add_to_wishlist(product_id):
-    if request.method == 'GET':
-        product_id = product_id
-        user_id = current_user.id
-        wish = Wishlist(product_id=product_id, user_id=user_id)
-        db_session.add(wish)
-        db_session.commit()
+def add_to_wishlist():
+    product_id = request.args.get('product_id', type=int)
+    user_id = current_user.id
 
-        return redirect(url_for('home'))
+    wish = Wishlist(product_id=product_id, user_id=user_id)
+
+    db_session.add(wish)
+    db_session.commit()
+
+    return jsonify(result="Success")
 
 
 @ app.route('/shop_grid')

@@ -395,12 +395,15 @@
 							<!--/ End Tab Nav -->
 						</div>
 
+						<script type=text/javascript>
+							$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+						</script>
+
 						<div class="tab-content" id="myTabContent">
 							<!-- Start Single Tab -->
 							<div class="tab-pane fade show active" id="man" role="tabpanel">
 								<div class="tab-single">
 									<div class="row">
-
 										{% for product in products %}
 										<div class="col-xl-3 col-lg-4 col-md-4 col-12">
 											<div class="single-product">
@@ -420,8 +423,20 @@
 																<em class=" ti-eye"></em>
 																<span>Quick Shop</span>
 															</a>
-															<a title="Wishlist" id="{{ product.id }}"
-																href="/{{ product.id }}/_add_to_wishlist">
+															<script type=text/javascript>
+																$(function() {
+																	$('a#wish_{{ product.id }}').bind('click', function() {
+																	$.getJSON($SCRIPT_ROOT + '/_add_to_wishlist', {
+																		product_id: {{ product.id }}
+																	}, function(data) {
+																		$("#result_{{ product.id }}").text(data.result);
+																	});
+																	return false;
+																	});
+																});
+															</script>
+															<a title="Wishlist" id="wish_{{ product.id }}"
+																href="#">
 																<em class=" ti-heart "></em>
 																<span>Add to Wishlist</span>
 															</a>
@@ -431,9 +446,6 @@
 															</a>
 														</div>
 														<div class="product-action-2">
-															<script type=text/javascript>
-																$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-															</script>
 															<script type=text/javascript>
 																$(function() {
 																	$('a#cart_{{ product.id }}').bind('click', function() {
