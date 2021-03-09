@@ -16,7 +16,7 @@ from werkzeug.utils import secure_filename
 
 from database import db_session, init_db
 from login import login_manager
-from models import User, Product, Category, Photo, Wishlist, Cart
+from models import User, Product, Category, Photo, Wishlist, Cart, Order
 
 from datetime import datetime
 
@@ -74,7 +74,6 @@ def shutdown_context(exception=None):
 def home():
     return render_template('index.html', products=Product.query.all(),
                            db_session=db_session, Photo=Photo, Product=Product)
-    # TODO ask boyko is this ok
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -313,9 +312,31 @@ def shop_grid():
     return render_template('shop-grid.html')
 
 
-@ app.route('/checkout')
+@ app.route('/checkout', methods=['GET', 'POST'])
+@login_required
 def checkout():
-    return render_template('checkout.html')
+    if request.method == 'GET':
+        return render_template('checkout.html')
+    else:
+        user_id = current_user.id
+        first_name = request.form.get("name")
+        last_name = request.form.get("lastname")
+        email = request.form.get("email")
+        phone_number = request.form.get("phonenumber")
+        country = request.form.get("country_name")
+        state = request.form.get("state-province")
+        address1 = request.form.get("address1")
+        address2 = request.form.get("address2")
+        postal = request.form.get("postal")
+        company = request.form.get("company_name")
+
+        order = Order(user_id=user_id, first_name=first_name, last_name=last_name, email=email, phone_number=phone_number,
+                      country=country, state=state, address1=address1, address2=address2, postal=postal, company=company)
+
+        db_session.add(order)
+        db_session.commit()
+
+        return redirect(url_for('home'))
 
 
 @ app.route('/contact')

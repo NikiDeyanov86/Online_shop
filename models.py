@@ -120,3 +120,13 @@ class Order(Base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('User.id', ondelete="CASCADE"))
+    first_name = Column(String(40), nullable=False)
+    last_name = Column(String(40), nullable=False)
+    email = Column(String(50), unique=False, nullable=False)
+    phone_number = Column(String(10), unique=False, nullable=False)
+    country = Column(String(35), unique=False, nullable=False)
+    state = Column(String(35), unique=False, nullable=False)
+    address1 = Column(String(100), unique=False, nullable=False)
+    address2 = Column(String(100), unique=False, nullable=True)
+    postal = Column(String(10), unique=False, nullable=False)
+    company = Column(String(40), unique=False, nullable=True)
