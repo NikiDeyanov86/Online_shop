@@ -65,32 +65,28 @@
 
     <script>
         $(function () {
-            var availableTags = [
-                "ActionScript",
-                "AppleScript",
-                "Asp",
-                "BASIC",
-                "C",
-                "C++",
-                "Clojure",
-                "COBOL",
-                "ColdFusion",
-                "Erlang",
-                "Fortran",
-                "Groovy",
-                "Haskell",
-                "Java",
-                "JavaScript",
-                "Lisp",
-                "Perl",
-                "PHP",
-                "Python",
-                "Ruby",
-                "Scala",
-                "Scheme"
-            ];
+            
+            
+            var products = [];
+            var nameArr = ["sneakers"];
+            var i = 0;
+                {% for product in products %} 
+                    
+                    products.push({
+                        id: "{{product.id}}",
+                        name: "{{ product.name }}"
+                    });
+                    console.log(products);
+                    
+                    i = i + 1;
+                {% endfor %} 
+                for(x in products) {
+                    nameArr.push(products[x].name);
+                    console.log(nameArr[x]);
+                }
+            
             $("#tags").autocomplete({
-                source: availableTags
+                source: nameArr
             });
         });
     </script>
