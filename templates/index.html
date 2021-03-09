@@ -388,8 +388,8 @@
                                                     <div class="single-product">
                                                         <div class="product-img">
                                                             <a href="product-details.html">
-                                                                <img class="default-img" src="{{ db_session.query(Photo).outerjoin(Product).first().address }}" onerror=this.src="../static/images/no-image-icon.png">
-                                                                <img class="hover-img" src="{{ db_session.query(Photo).outerjoin(Product).first().address }}" onerror=this.src="../static/images/no-image-icon.png">
+                                                                <img class="default-img" src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}" onerror=this.src="../static/images/no-image-icon.png">
+                                                                <img class="hover-img" src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}" onerror=this.src="../static/images/no-image-icon.png">
                                                             </a>
                                                             <div class="button-head">
                                                                 <div class="product-action">
@@ -1740,6 +1740,9 @@
 {#									</div>#}
 {#								</div>#}
 								<!--/ End Single Tab -->
+                                        </div>
+                                    </div>
+                                    </div>
 							</div>
 						</div>
 					</div>

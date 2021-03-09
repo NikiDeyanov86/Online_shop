@@ -235,15 +235,14 @@ def cart():
 
 @app.route('/wishlist')
 def wishlist():
-    return render_template('wishlist.html', current_user=current_user)
+    return render_template('wishlist.html', wishlist=Wishlist.query.all(), db_session=db_session, Product=Product, Photo=Photo, Wishlist=Wishlist)  # TODO .filter_by(user_id=current_user.id) ??
 
 
 @app.route('/<int:product_id>/_add_to_wishlist', methods=['GET', 'POST'])
 @login_required
 def add_to_wishlist(product_id):
     if request.method == 'GET':
-        # Nothing special will happen here
-        pass
+        return redirect(url_for('home'))
 
     elif request.method == 'POST':
         product_id = product_id
