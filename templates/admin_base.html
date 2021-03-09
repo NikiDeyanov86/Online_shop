@@ -144,7 +144,7 @@
                                     <option>kid’s item</option>
                                 </select>
                                 <form>
-                                    <input name="search" placeholder="Search Products Here....." type="text">
+                                    <input name="search" placeholder="Search Products Here....." type="text" id="tags">
                                     <button class="btnn"><i class="ti-search"></i></button>
                                 </form>
                             </div>
@@ -187,10 +187,6 @@
     {% block content %}
     {% endblock %}
 
-    <div class="ui-widget">
-        <label for="tags">Tags: </label>
-        <input id="tags">
-    </div>
 
     <!-- Start Footer Area -->
     <footer class="footer">
@@ -220,7 +216,7 @@
                                 <li><a href="#">About Us</a></li>
                                 <li><a href="#">Faq</a></li>
                                 <li><a href="#">Terms & Conditions</a></li>
-                                <li><a href="#">Contact Us</a></li>
+                                <li><a href="/contact">Contact Us</a></li>
                                 <li><a href="#">Help</a></li>
                             </ul>
                         </div>
