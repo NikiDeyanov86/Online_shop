@@ -1,9 +1,13 @@
 import uuid
 import os
 
-from flask import Flask, jsonify
-from flask import render_template, request, redirect, make_response, url_for
+
+from flask import Flask
+from flask import render_template, request, redirect, make_response, url_for, jsonify
+
 from functools import wraps
+
+
 
 from flask_login import login_user, login_required, current_user, logout_user
 from werkzeug.middleware.shared_data import SharedDataMiddleware
@@ -20,6 +24,8 @@ from config import SECRET_KEY, EMAIL, PASSWORD
 from utils import validate_file_type
 
 app = Flask(__name__)
+
+
 app.secret_key = SECRET_KEY
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 app.config['UPLOAD_FOLDER'] = './uploads'
@@ -248,3 +254,33 @@ def add_to_wishlist(product_id):
 
         return redirect(url_for('home'))
 
+
+@ app.route('/shop_grid')
+def shop_grid():
+    return render_template('shop-grid.html')
+
+
+@ app.route('/checkout')
+def checkout():
+    return render_template('checkout.html')
+
+
+@ app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
+
+@ app.route('/blog_single_sidebar')
+def blog_single_sidebar():
+    return render_template('blog-single-sidebar.html')
+
+
+@app.route('/livesearch', methods=["POST", "GET"])
+@admin_login_required
+def livesearch():
+    searchbox = request.form.get("text")
+    cursor = db_session.connection.cursor()
+    query = "select word_eng from words where word_eng LIKE '{}%' order by word_eng".format(searchbox)
+    cursor.execute(query)
+    result = cursor.fetchall() 
+    return jsonify(result)

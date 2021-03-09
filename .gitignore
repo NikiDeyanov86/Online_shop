@@ -6,6 +6,7 @@
 
 # IDE folders
 .vscode/
+.idea/
 
 # database
 /test.db
