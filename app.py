@@ -117,8 +117,10 @@ def login():
 
 @app.route('/_add_to_cart')
 @login_required
-def add_numbers():
+def _add_to_cart():
+    print("Here")
     product_id = request.args.get('product_id', type=int)
+    print(product_id)
 
     cart = Cart(product_id=product_id, user_id=current_user.id)
 
