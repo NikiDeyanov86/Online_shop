@@ -8,7 +8,6 @@ from flask import render_template, request, redirect, make_response, url_for, js
 from functools import wraps
 
 
-
 from flask_login import login_user, login_required, current_user, logout_user
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -16,12 +15,13 @@ from werkzeug.utils import secure_filename
 
 from database import db_session, init_db
 from login import login_manager
-from models import User, Product, Category, Photo, Wishlist
+from models import User, Product, Category, Photo, Wishlist, Cart
 
 from datetime import datetime
 
 from config import SECRET_KEY, EMAIL, PASSWORD
 from utils import validate_file_type
+from flask.json import jsonify
 
 app = Flask(__name__)
 
@@ -70,7 +70,9 @@ def shutdown_context(exception=None):
 
 @app.route('/')
 def home():
-    return render_template('index.html', products=Product.query.all(), db_session=db_session, Photo=Photo, Product=Product)  # TODO ask boyko is this ok
+    return render_template('index.html', products=Product.query.all(),
+                           db_session=db_session, Photo=Photo, Product=Product)
+    # TODO ask boyko is this ok
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -111,6 +113,28 @@ def login():
             login_user(user)
 
             return redirect(url_for('home'))
+
+
+@app.route('/_add_to_cart')
+@login_required
+def add_numbers():
+    product_id = request.args.get('product_id', type=int)
+
+    cart = Cart(product_id=product_id, user_id=current_user.id)
+
+    db_session.add(cart)
+    db_session.commit()
+
+    return jsonify(result="Product added succesfully")
+
+
+@app.route('/cart')
+@login_required
+def cart():
+    products = db_session.query(Cart).outerjoin(
+        Product).outerjoin(User).filter(User.id == current_user.id).all()
+
+    return render_template('cart.html', products=products)
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -163,7 +187,9 @@ def admin():
     categories = Category.query.all()
     products = Product.query.all()
 
-    return render_template('admin.html', categories=categories, products=products, db_session=db_session, Product=Product, Photo=Photo)
+    return render_template(
+        'admin.html', categories=categories, products=products,
+        db_session=db_session, Product=Product, Photo=Photo)
 
 
 @app.route('/admin/register', methods=['GET', 'POST'])
@@ -215,7 +241,9 @@ def admin_login():
 def admin_product_details(product_id):
     product = Product.query.filter_by(id=product_id).first()
 
-    return render_template("admin_product_details.html", product=product, db_session=db_session, Product=Product, Photo=Photo)
+    return render_template(
+        "admin_product_details.html", product=product,
+        db_session=db_session, Product=Product, Photo=Photo)
 
 
 @app.route('/logout')
@@ -226,11 +254,6 @@ def logout():
     logout_user()
 
     return redirect(url_for('home'))
-
-
-@app.route('/cart')
-def cart():
-    return render_template('cart.html')
 
 
 @app.route('/wishlist')
@@ -274,12 +297,12 @@ def blog_single_sidebar():
     return render_template('blog-single-sidebar.html')
 
 
-@app.route('/livesearch', methods=["POST", "GET"])
-@admin_login_required
-def livesearch():
-    searchbox = request.form.get("text")
-    cursor = db_session.connection.cursor()
-    query = "select word_eng from words where word_eng LIKE '{}%' order by word_eng".format(searchbox)
-    cursor.execute(query)
-    result = cursor.fetchall() 
-    return jsonify(result)
+# @app.route('/livesearch', methods=["POST", "GET"])
+# @admin_login_required
+# def livesearch():
+#     searchbox = request.form.get("text")
+#     cursor = db_session.connection.cursor()
+#     query = "select word_eng from words where word_eng LIKE '{}%' order by word_eng".format(searchbox)
+#     cursor.execute(query)
+#     result = cursor.fetchall() 
+#     return jsonify(result)

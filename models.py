@@ -3,6 +3,9 @@ from sqlalchemy.orm import relationship
 from database import Base
 
 
+DELETE_ALL = "all, delete"
+
+
 class User(Base):
     __tablename__ = "User"
 
@@ -12,7 +15,9 @@ class User(Base):
     login_id = Column(String(36), nullable=True)
 
     wishlist = relationship("Wishlist", back_populates="user",
-                            cascade="all, delete", passive_deletes=True)
+                            cascade=DELETE_ALL, passive_deletes=True)
+    cart = relationship("Cart", back_populates="user",
+                        cascade=DELETE_ALL, passive_deletes=True)
 
     # role is 'basic' or 'admin'
     role = Column(String(6), default="basic")
@@ -46,7 +51,7 @@ class Category(Base):
     name = Column(String(45), nullable=False)
 
     product = relationship("Product", back_populates="category",
-                           cascade="all, delete", passive_deletes=True)
+                           cascade=DELETE_ALL, passive_deletes=True)
 
 
 class Product(Base):
@@ -65,7 +70,10 @@ class Product(Base):
     category = relationship("Category", back_populates="product")
 
     photo = relationship("Photo", back_populates="product",
-                         cascade="all, delete", passive_deletes=True)
+                         cascade=DELETE_ALL, passive_deletes=True)
+
+    cart = relationship("Cart", back_populates="product",
+                        cascade=DELETE_ALL, passive_deletes=True)
 
     wishlist = relationship("Wishlist", back_populates="product",
                             cascade="all, delete", passive_deletes=True)
@@ -93,3 +101,15 @@ class Wishlist(Base):
     user_id = Column(Integer, ForeignKey(
         'User.id', ondelete="CASCADE"))
     user = relationship("User", back_populates="wishlist")
+
+
+class Cart(Base):
+    __tablename__ = 'Cart'
+
+    id = Column(Integer, primary_key=True)
+
+    user_id = Column(Integer, ForeignKey('User.id', ondelete="CASCADE"))
+    product_id = Column(Integer, ForeignKey('Product.id', ondelete="CASCADE"))
+
+    user = relationship("User", back_populates="cart")
+    product = relationship("Product", back_populates="cart")
