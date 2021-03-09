@@ -3,7 +3,8 @@ import os
 
 
 from flask import Flask
-from flask import render_template, request, redirect, make_response, url_for, jsonify
+from flask import render_template, request,\
+    redirect, make_response, url_for, jsonify
 
 from functools import wraps
 

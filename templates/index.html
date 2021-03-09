@@ -73,49 +73,46 @@
 						<!-- Search Form -->
 						<div class="search-top">
 							<div class="top-search"><a href="#0"><em class="ti-search"></em></a></div>
-							<!-- Search Form -->
-							<div class="search-top">
-								<form class="search-form">
-									<script type=text/javascript>
-									$(document).ready(function(){
-										$("input").on("input", function(){
-											s_text = $("input[name='search2']").val()
-											// console.log($(this))
-											$.getJSON($SCRIPT_ROOT + '/_livesearch', {
-													text: s_text,
-												}, function(data) {
-													// $("#search_results").text(data.result);
-													console.log(data)
-												});
-												return false;
-										});
-									});
-									</script>
-									<input type="text" placeholder="Search here..." name="search1" id="search_field">
-									<button value="search" type="submit"><em class="ti-search"></em></button>
-								</form>
-							</div>
-							<!--/ End Search Form -->
 						</div>
 						<!--/ End Search Form -->
 						<div class="mobile-nav"></div>
 					</div>
 					<div class="col-lg-8 col-md-7 col-12">
-						<div class="search-bar-top">
-							<div class="search-bar">
-								<select>
-									<option selected="selected">All Category</option>
-									<option>watch</option>
-									<option>mobile</option>
-									<option>kid’s item</option>
-								</select>
-								<form>
-									<input name="search2" placeholder="Search Products Here....." type="search">
-									<button class="btnn"><em class="ti-search"></em></button>
-								</form>
-							</div>
-						</div>
-					</div>
+                        <!-- Search Form -->
+                        <div class="search-bar-top">
+                            <p id="datalist"></p>
+                            <div class="search-bar">
+
+                                <select>
+                                    <option selected="selected">All Category</option>
+                                    <option>watch</option>
+                                    <option>mobile</option>
+                                    <option>kid’s item</option>
+                                </select>
+                                <form>
+                                    <script type=text/javascript>
+                                        $(document).ready(function(){
+                                            $("input").on("input", function(){
+                                                s_text = $("input[name='search']").val()
+												if (s_text.length < 3) return false;
+                                                // console.log($(this))
+                                                $.getJSON($SCRIPT_ROOT + '/_livesearch', {
+                                                    text: s_text,
+                                                }, function(data) {
+                                                    // $("#search_results").text(data.result);
+                                                    console.log(data)
+                                                });
+                                                return false;
+                                            });
+                                        });
+                                        </script>
+                                    <input name="search" placeholder="Search Products Here....." type="text" id="tags">
+                                    <button class="btnn"><em class="ti-search"></em></button>
+                                </form>
+                            </div>
+                        </div>
+                        <!--/ End Search Form -->
+                    </div>
 					<div class="col-lg-2 col-md-3 col-12">
 						<div class="right-bar">
 							<!-- Search Form -->
@@ -125,7 +122,7 @@
 							</div>
 							<div class="sinlge-bar shopping">
 								<a href="/login" class="single-icon"><i class="fa fa-user-circle-o"
-										aria-hidden="true"></i></a>
+									aria-hidden="true"></i></a>
 
 								<div class="shopping-item">
 
