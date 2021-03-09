@@ -230,6 +230,28 @@ def logout():
 def cart():
     return render_template('cart.html')
 
+
+@ app.route('/shop_grid')
+def shop_grid():
+    return render_template('shop-grid.html')
+
+
+@ app.route('/checkout')
+def checkout():
+    return render_template('checkout.html')
+
+
+@ app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
+
+@ app.route('/blog_single_sidebar')
+def blog_single_sidebar():
+    return render_template('blog-single-sidebar.html')
+
+    
+
 """@app.route('/livesearch', methods=["POST", "GET"])
 @admin_login_required
 def livesearch():
