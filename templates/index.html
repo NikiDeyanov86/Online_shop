@@ -93,6 +93,9 @@
                                     <script type=text/javascript>
                                         $(document).ready(function(){
                                             $("input").on("input", function(){
+												// Clear Search Results Field
+												$("#search_results").empty();
+
                                                 s_text = $("input[name='search']").val()
 												if (s_text.length < 3) return false;
                                                 // console.log($(this))
@@ -101,13 +104,52 @@
                                                 }, function(data) {
                                                     // $("#search_results").text(data.result);
                                                     console.log(data)
+
+													data.forEach(element => {
+														console.log(element);
+													});
+													data = data.slice(0, 3);
+													console.log("After slice:")
+													console.log(data)
+
+													data.forEach(element => {
+														$("<a></a>").text(element.name).attr({
+															href: "#",
+															class: "list-group-item list-group-item-action",
+														}).appendTo("#search_results");
+													});
                                                 });
                                                 return false;
                                             });
                                         });
-                                        </script>
+                                    </script>
                                     <input name="search" placeholder="Search Products Here....." type="text" id="tags">
                                     <button class="btnn"><em class="ti-search"></em></button>
+									<script>
+										// $(function () {
+										// 	var products = [];
+										// 	var nameArr = ["sneakers"];
+										// 	var i = 0;
+										// 	{% for product in products %}
+
+										// 	products.push({
+										// 		id: "{{product.id}}",
+										// 		name: "{{ product.name }}"
+										// 	});
+										// 	console.log(products);
+
+										// 	i = i + 1;
+										// 	{% endfor %}
+										// 	for (x in products) {
+										// 		nameArr.push(products[x].name);
+										// 		console.log(nameArr[x]);
+										// 	}
+
+										// 	$("#tags").autocomplete({
+										// 		source: nameArr
+										// 	});
+										// });
+									</script>
                                 </form>
                             </div>
                         </div>
@@ -307,6 +349,11 @@
 		<!--/ End Header Inner -->
 	</header>
 	<!--/ End Header -->
+
+	<!-- Search Results -->
+	<div class="list-group" id="search_results">
+	</div>
+	<!-- End Search Results -->
 
 	<!-- Slider Area -->
 	<section class="hero-slider">

@@ -100,19 +100,36 @@
                                     <script type=text/javascript>
                                         $(document).ready(function(){
                                             $("input").on("input", function(){
+												// Clear Search Results Field
+												$("#search_results").empty();
+
                                                 s_text = $("input[name='search']").val()
-                                                // console.log($(this))
 												if (s_text.length < 3) return false;
+                                                // console.log($(this))
                                                 $.getJSON($SCRIPT_ROOT + '/_livesearch', {
                                                     text: s_text,
                                                 }, function(data) {
                                                     // $("#search_results").text(data.result);
                                                     console.log(data)
+
+													data.forEach(element => {
+														console.log(element);
+													});
+													data = data.slice(0, 3);
+													console.log("After slice:")
+													console.log(data)
+
+													data.forEach(element => {
+														$("<a></a>").text(element.name).attr({
+															href: "#",
+															class: "list-group-item list-group-item-action",
+														}).appendTo("#search_results");
+													});
                                                 });
                                                 return false;
                                             });
                                         });
-                                        </script>
+                                    </script>
                                     <input name="search" placeholder="Search Products Here....." type="text" id="tags">
                                     <button class="btnn"><i class="ti-search"></i></button>
                                 </form>
