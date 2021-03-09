@@ -97,7 +97,7 @@
 												$("#search_results").empty();
 
                                                 s_text = $("input[name='search']").val()
-												if (s_text.length < 3) return false;
+												if (s_text.length < 1) return false;
                                                 // console.log($(this))
                                                 $.getJSON($SCRIPT_ROOT + '/_livesearch', {
                                                     text: s_text,
