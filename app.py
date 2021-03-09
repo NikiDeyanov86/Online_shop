@@ -265,9 +265,6 @@ def wishlist():
 @login_required
 def add_to_wishlist(product_id):
     if request.method == 'GET':
-        return redirect(url_for('home'))
-
-    elif request.method == 'POST':
         product_id = product_id
         user_id = current_user.id
         wish = Wishlist(product_id=product_id, user_id=user_id)
