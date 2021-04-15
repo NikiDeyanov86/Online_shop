@@ -110,6 +110,7 @@ class Cart(Base):
 
     user_id = Column(Integer, ForeignKey('User.id', ondelete="CASCADE"))
     product_id = Column(Integer, ForeignKey('Product.id', ondelete="CASCADE"))
+    quantity = Column(Integer, default=1)
 
     user = relationship("User", back_populates="cart")
     product = relationship("Product", back_populates="cart")

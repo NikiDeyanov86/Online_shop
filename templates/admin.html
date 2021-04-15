@@ -108,13 +108,13 @@
                         <div class="col-xl-3 col-lg-4 col-md-4 col-12">
                           <div class="single-product">
                             <div class="product-img">
-                              <a href="product-details.html">
+                              <a href="/admin/product/{{ product.id }}">
                                 <img class="default-img" src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}" onerror=this.src="../static/images/no-image-icon.png">
                                 <img class="hover-img" src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}" onerror=this.src="../static/images/no-image-icon.png">
                               </a>
                             </div>
                             <div class="product-content">
-                              <h3><a href="product-details.html">{{ product.name }}</a></h3>
+                              <h3><a href="/admin/product/{{ product.id }}">{{ product.name }}</a></h3>
                               <div class="product-price">
                                 <span>${{ product.price }} лв</span>
                                 <span class="float-right">

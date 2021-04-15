@@ -61,18 +61,40 @@
 							<td class="price" data-title="Price"><span>${{ db_session.query(Product).filter(Product.id==product.product_id).first().price }} </span></td>
 							<td class="qty" data-title="Qty">
 								<!-- Input Order -->
+								<script type=text/javascript>
+									$(document).ready(function(){
+										$("button").on("click", function(){
+											
+											var curr;
+											
+											if(this.id == "btn_minus") curr = -1;
+											else if(this.id == "btn_plus") curr = 1;
+											else { 
+												return false;
+											}
+											var product_id = this.value;
+											$.getJSON($SCRIPT_ROOT + '/_quantity', {
+												curr : curr,
+												product_id : product_id
+											}, function(response) {
+												console.log(response);
+											});
+											return false;
+										});
+									});
+								</script>
 								<div class="input-group">
 									<div class="button minus">
-										<button type="button" class="btn btn-primary btn-number" disabled="disabled"
-											data-type="minus" data-field="quant[{{ product.product_id }}]">
+										<button type="button" class="btn btn-primary btn-number"
+											data-type="minus" data-field="quant[{{ product.product_id }}] " id="btn_minus" value="{{ product.product_id }}">
 											<em class="ti-minus"></em>
 										</button>
 									</div>
 									<input type="text" name="quant[{{ product.product_id }}]" class="input-number" data-min="1" data-max="100"
-										value="1">
+										value="{{ product.quantity }}">
 									<div class="button plus">
 										<button type="button" class="btn btn-primary btn-number" data-type="plus"
-											data-field="quant[{{ product.product_id }}]">
+											data-field="quant[{{ product.product_id }}]" id="btn_plus" value="{{ product.product_id }}">
 											<em class="ti-plus"></em>
 										</button>
 									</div>
@@ -204,8 +226,8 @@
 									<li class="last">You Pay<span>$310.00</span></li>
 								</ul>
 								<div class="button5">
-									<a href="#" class="btn">Checkout</a>
-									<a href="#" class="btn">Continue shopping</a>
+									<a href="/checkout" class="btn">Checkout</a>
+									<a href="/shop_grid" class="btn">Continue shopping</a>
 								</div>
 							</div>
 						</div>

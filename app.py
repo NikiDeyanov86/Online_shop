@@ -383,3 +383,25 @@ def livesearch():
     print(result)
 
     return jsonify(result)
+
+@app.route('/_quantity')
+def quantity():
+    curr = request.args.get('curr', type=int)
+    product_id = request.args.get('product_id', type=int)
+
+    product = Product.query.filter_by(product_id=product_id).first()
+    if(product == None):
+        return jsonify("error")
+    
+    print(curr)
+    print(product_id)
+
+    return jsonify(curr)
+
+@app.route('/product/<int:product_id>')
+def product_details(product_id):
+    product = Product.query.filter_by(id=product_id).first()
+
+    return render_template(
+        "product_details.html", product=product,
+        db_session=db_session, Product=Product, Photo=Photo)

@@ -4,6 +4,13 @@
 # config files
 /config.py
 
+# py env
+/pyvenv.cfg
+
+# scripts
+/Scripts
+/include/
+
 # IDE folders
 .vscode/
 .idea/
