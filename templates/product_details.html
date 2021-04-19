@@ -17,7 +17,7 @@
             <div class="col-10">
                 <div class="single-product">
                     <div class="product-img">
-                        <a href="product-details.html">
+                        <a>
                             <img class="default-img"
                                 src="{{ db_session.query(Photo).outerjoin(Product).first().address}}" alt="#">
                             <img class="hover-img" src="{{ db_session.query(Photo).outerjoin(Product).first().address}}"
@@ -29,7 +29,7 @@
                                     <em class=" ti-eye"></em>
                                     <span>Quick Shop</span>
                                 </a>
-                                <a title="Wishlist" href="#">
+                                <a title="Wishlist" href="#" id="wish_{{ product.id }}">
                                     <em class=" ti-heart "></em>
                                     <span>Add to Wishlist</span>
                                 </a>
@@ -39,7 +39,8 @@
                                 </a>
                             </div>
                             <div class="product-action-2">
-                                <a title="Add to cart" href="#">Add to cart</a>
+                                <a title="Add to cart" href="#" id="cart_{{ product.id }}">Add to cart</a>
+                                <span id="result_{{ product.id }}"></span>
                             </div>
                         </div>
                     </div>
@@ -64,6 +65,17 @@
                         $("#result_{{ product.id }}").text(data.result);
                     });
                     return false;
+                    });
+
+                    $(function() {
+                        $('a#wish_{{ product.id }}').bind('click', function() {
+                        $.getJSON($SCRIPT_ROOT + '/_add_to_wishlist', {
+                            product_id: {{ product.id }}
+                        }, function(data) {
+                            $("#result_{{ product.id }}").text(data.result);
+                        });
+                        return false;
+                        });
                     });
                 });
             </script>

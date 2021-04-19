@@ -307,6 +307,21 @@ def add_to_wishlist():
     user_id = current_user.id
 
     wish = Wishlist(product_id=product_id, user_id=user_id)
+    product = Product.query.filter_by(id=product_id).first()
+
+    if 'login_id' in current_user.__dict__:
+        user_product = UserProduct.query.filter_by(
+            user=current_user, product=product).first()
+
+        if user_product is None:
+            user_product = UserProduct(
+                user=current_user, product=product, status=2)
+        else:
+            user_product.status = 2
+
+        db_session.add(user_product)
+
+        db_session.commit()
 
     db_session.add(wish)
     db_session.commit()
@@ -321,6 +336,18 @@ def _remove_from_wishlist():
 
     wish = Wishlist.query.filter_by(product_id=product_id,
                                     user_id=current_user.id).first()
+
+    product = Product.query.filter_by(id=product_id)
+
+    if 'login_id' in current_user.__dict__:
+        user_product = UserProduct.query.filter_by(
+            user=current_user, product=product).first()
+
+        user_product.status = 1
+
+        db_session.add(user_product)
+
+        db_session.commit()
 
     db_session.delete(wish)
     db_session.commit()
@@ -460,6 +487,11 @@ def product_details(product_id):
 
         r = recomendations.get_recommendations(user_products, current_user.id)
 
+        pprint(r)
+
+        products = recomendations.transform_prefs(user_products)
+        r = recomendations.top_matches(products, product_id)
+        r = [p for p in r if p[0] > 0]
         pprint(r)
 
     return render_template(
