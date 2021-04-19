@@ -19,12 +19,16 @@ from login import login_manager
 from models import User, Product, Category, Photo, Wishlist, Cart, Order,\
     association_table, UserProduct
 
+import recomendations
+
 from datetime import datetime
 
 from config import SECRET_KEY, EMAIL, PASSWORD
 from utils import validate_file_type
 from flask.json import jsonify
 import json
+
+from pprint import pprint
 
 app = Flask(__name__)
 
@@ -424,18 +428,40 @@ def quantity():
 def product_details(product_id):
     product = Product.query.filter_by(id=product_id).first()
 
-    if current_user.login_id is not None:
+    r = []
+
+    if 'login_id' in current_user.__dict__:
         user_product = UserProduct.query.filter_by(
             user=current_user, product=product).first()
 
         if user_product is None:
             user_product = UserProduct(
                 user=current_user, product=product, status=1)
+        elif user_product.status < 1:
+            user_product.status = 1
 
-            db_session.add(user_product)
+        db_session.add(user_product)
 
-            db_session.commit()
+        db_session.commit()
+
+        # Get Recomendations
+        users = User.query.all()
+        products = Product.query.all()
+
+        user_products = {user.id: {product.id: 0 for product in products}
+                         for user in users}
+
+        u_products = UserProduct.query.all()
+
+        for p in u_products:
+            user_products[p.user_id][p.product_id] = p.status
+
+        pprint(user_products)
+
+        r = recomendations.get_recommendations(user_products, current_user.id)
+
+        pprint(r)
 
     return render_template(
-        "product_details.html", product=product,
+        "product_details.html", product=product, recomendations=r[:5],
         db_session=db_session, Product=Product, Photo=Photo)

@@ -2,6 +2,25 @@ import importlib
 import random
 from math import sqrt
 
+from pprint import pprint
+
+import data
+from generate_data import generate_data
+
+
+BOUGHT = 2
+BROWSED = 1
+DID_NOT_BUY = 0
+
+users = data.USERS
+
+if users == {}:
+    generate_data(u=5, p=10, my_user=True)
+    importlib.reload(data)
+    users = data.USERS
+
+pprint(users)
+
 
 # Returns the Pearson correlation coefficient for p1 and p2
 def sim_pearson(prefs, p1, p2):
