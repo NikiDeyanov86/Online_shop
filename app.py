@@ -16,7 +16,8 @@ from werkzeug.utils import secure_filename
 
 from database import db_session, init_db
 from login import login_manager
-from models import User, Product, Category, Photo, Wishlist, Cart, Order
+from models import User, Product, Category, Photo, Wishlist, Cart, Order,\
+    association_table, UserProduct
 
 from datetime import datetime
 
@@ -251,6 +252,22 @@ def _add_to_cart():
 
     cart = Cart(product_id=product_id, user_id=current_user.id)
 
+    product = Product.query.filter_by(id=product_id).first()
+
+    if current_user.login_id is not None:
+        user_product = UserProduct.query.filter_by(
+            user=current_user, product=product).first()
+
+        if user_product is None:
+            user_product = UserProduct(
+                user=current_user, product=product, status=2)
+        else:
+            user_product.status = 2
+
+        db_session.add(user_product)
+
+        db_session.commit()
+
     db_session.add(cart)
     db_session.commit()
 
@@ -307,12 +324,12 @@ def _remove_from_wishlist():
     return jsonify(result="Deleted")
 
 
-@ app.route('/shop_grid')
+@app.route('/shop_grid')
 def shop_grid():
     return render_template('shop-grid.html')
 
 
-@ app.route('/checkout', methods=['GET', 'POST'])
+@app.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
     if request.method == 'GET':
@@ -330,8 +347,11 @@ def checkout():
         postal = request.form.get("postal")
         company = request.form.get("company_name")
 
-        order = Order(user_id=user_id, first_name=first_name, last_name=last_name, email=email, phone_number=phone_number,
-                      country=country, state=state, address1=address1, address2=address2, postal=postal, company=company)
+        order = Order(user_id=user_id, first_name=first_name,
+                      last_name=last_name, email=email,
+                      phone_number=phone_number,
+                      country=country, state=state, address1=address1,
+                      address2=address2, postal=postal, company=company)
 
         db_session.add(order)
         db_session.commit()
@@ -339,12 +359,12 @@ def checkout():
         return redirect(url_for('home'))
 
 
-@ app.route('/contact')
+@app.route('/contact')
 def contact():
     return render_template('contact.html')
 
 
-@ app.route('/blog_single_sidebar')
+@app.route('/blog_single_sidebar')
 def blog_single_sidebar():
     return render_template('blog-single-sidebar.html')
 
@@ -384,23 +404,37 @@ def livesearch():
 
     return jsonify(result)
 
+
 @app.route('/_quantity')
 def quantity():
     curr = request.args.get('curr', type=int)
     product_id = request.args.get('product_id', type=int)
 
     product = Product.query.filter_by(product_id=product_id).first()
-    if(product == None):
+    if(product is None):
         return jsonify("error")
-    
+
     print(curr)
     print(product_id)
 
     return jsonify(curr)
 
+
 @app.route('/product/<int:product_id>')
 def product_details(product_id):
     product = Product.query.filter_by(id=product_id).first()
+
+    if current_user.login_id is not None:
+        user_product = UserProduct.query.filter_by(
+            user=current_user, product=product).first()
+
+        if user_product is None:
+            user_product = UserProduct(
+                user=current_user, product=product, status=1)
+
+            db_session.add(user_product)
+
+            db_session.commit()
 
     return render_template(
         "product_details.html", product=product,

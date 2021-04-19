@@ -1,9 +1,17 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from database import Base
+from sqlalchemy.sql.schema import Table
 
 
 DELETE_ALL = "all, delete"
+
+association_table = Table('association', Base.metadata,
+                          Column('user_id', Integer, ForeignKey('User.id')),
+                          Column('product_id', Integer,
+                                 ForeignKey('Product.id')),
+                          Column('status', Integer, default=0)
+                          )
 
 
 class User(Base):
@@ -18,6 +26,9 @@ class User(Base):
                             cascade=DELETE_ALL, passive_deletes=True)
     cart = relationship("Cart", back_populates="user",
                         cascade=DELETE_ALL, passive_deletes=True)
+
+    # products = relationship("Product", secondary=association_table)
+    products = relationship('Product', secondary='UserProduct')
 
     # role is 'basic' or 'admin'
     role = Column(String(6), default="basic")
@@ -76,7 +87,9 @@ class Product(Base):
                         cascade=DELETE_ALL, passive_deletes=True)
 
     wishlist = relationship("Wishlist", back_populates="product",
-                            cascade="all, delete", passive_deletes=True)
+                            cascade=DELETE_ALL, passive_deletes=True)
+
+    users = relationship('User', secondary='UserProduct')
 
 
 class Photo(Base):
@@ -131,3 +144,14 @@ class Order(Base):
     address2 = Column(String(100), unique=False, nullable=True)
     postal = Column(String(10), unique=False, nullable=False)
     company = Column(String(40), unique=False, nullable=True)
+
+
+class UserProduct(Base):
+    __tablename__ = 'UserProduct'
+
+    user_id = Column(Integer, ForeignKey('User.id'), primary_key=True)
+    product_id = Column(Integer, ForeignKey('Product.id'), primary_key=True)
+    status = Column(Integer)
+
+    user = relationship(User, backref=backref("products_assoc"))
+    product = relationship(Product, backref=backref("users_assoc"))
