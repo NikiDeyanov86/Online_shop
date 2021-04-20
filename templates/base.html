@@ -167,8 +167,13 @@
 								</div>
 							</div>
 							<div class="sinlge-bar shopping">
-								<a href="/cart" class="single-icon"><i class="ti-bag"></i> <span
-										class="total-count">2</span></a>
+								<a href="/cart" class="single-icon"><i class="ti-bag"></i>
+                                    {% if 'login_id' in current_user.__dict__ %}
+									    <span class="total-count" id="total-count">{{ db_session.query(Cart).filter(User.id==user_id).count() }}</span>
+                                    {% else %}
+                                        <span class="total-count">0</span>
+                                    {% endif %}
+                                </a>
 								<!-- Shopping Item -->
 								<div class="shopping-item">
 									<div class="dropdown-cart-header">

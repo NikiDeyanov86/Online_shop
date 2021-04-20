@@ -255,7 +255,7 @@ def cart():
     return render_template(
         'cart.html', cart=Cart.query.filter_by(
             user_id=current_user.id).all(), db_session=db_session,
-        Product=Product, Photo=Photo, Cart=Cart)
+        Product=Product, Photo=Photo, Cart=Cart, User=User, user_id=current_user.id)
 
 
 @app.route('/_add_to_cart')
@@ -506,7 +506,7 @@ def product_details(product_id):
 
     return render_template(
         "product_details.html", product=product, recomendations=r[:5],
-        db_session=db_session, Product=Product, Photo=Photo)
+        db_session=db_session, Product=Product, Photo=Photo, Cart=Cart, User=User, user_id=current_user.id)
 
 
 @admin_login_required

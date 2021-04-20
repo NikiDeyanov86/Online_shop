@@ -19,8 +19,8 @@
                     <div class="product-img">
                         <a>
                             <img class="default-img"
-                                src="{{ db_session.query(Photo).outerjoin(Product).first().address}}" alt="#">
-                            <img class="hover-img" src="{{ db_session.query(Photo).outerjoin(Product).first().address}}"
+                                src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}" alt="#">
+                            <img class="hover-img" src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
                                 alt="#">
                         </a>
                         <div class="button-head">
@@ -63,6 +63,9 @@
                         product_id: {{ product.id }}
                     }, function(data) {
                         $("#result_{{ product.id }}").text(data.result);
+                        var count = $("#total-count").text();
+                        $("#total-count").text(parseInt(count) + 1);
+
                     });
                     return false;
                     });

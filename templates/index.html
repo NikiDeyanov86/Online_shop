@@ -191,9 +191,9 @@
 								<a href="/cart" class="single-icon">
 									<em class="ti-bag"></em>
                                     {% if 'login_id' in current_user.__dict__ %}
-									    <span class="total-count">{{ db_session.query(Cart).filter(User.id==user_id).count() }}</span>
+									    <span class="total-count" id="total-count">{{ db_session.query(Cart).filter(User.id==user_id).count() }}</span>
                                     {% else %}
-                                    <span class="total-count">0</span>
+                                        <span class="total-count">0</span>
                                     {% endif %}
 								</a>
 								<!-- Shopping Item -->
@@ -518,6 +518,8 @@
 																		product_id: {{ product.id }}
 																	}, function(data) {
 																		$("#result_{{ product.id }}").text(data.result);
+                                                                        var count = $("#total-count").text();
+                                                                        $("#total-count").text(parseInt(count) + 1);
 																	});
 																	return false;
 																	});
