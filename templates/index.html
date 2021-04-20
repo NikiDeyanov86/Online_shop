@@ -190,18 +190,27 @@
 							<div class="sinlge-bar shopping">
 								<a href="/cart" class="single-icon">
 									<em class="ti-bag"></em>
-									<span class="total-count">2</span>
+                                    {% if 'login_id' in current_user.__dict__ %}
+									    <span class="total-count">{{ db_session.query(Cart).filter(User.id==user_id).count() }}</span>
+                                    {% else %}
+                                    <span class="total-count">0</span>
+                                    {% endif %}
 								</a>
 								<!-- Shopping Item -->
 								<div class="shopping-item">
 									<div class="dropdown-cart-header">
-										<span>2 Items</span>
+                                        {% if 'login_id' in current_user.__dict__ %}
+										    <span>{{ db_session.query(Cart).filter(User.id==user_id).count() }} Items</span>
+                                        {% else %}
+                                            <span>0 Items</span>
+                                        {% endif %}
 										<a href="/cart">View Cart</a>
 									</div>
 									<ul class="shopping-list">
+                                    {% if 'login_id' in current_user.__dict__ %}  <!-- TODO is this working -->
 										{% for product in cart %}
 										<li>
-											<a href="#" class="remove" title="Remove this item"><i
+											<a href="/_remove_from_cart" class="remove" title="Remove this item"><i
 													class="fa fa-remove"></i></a>
 											<a class="cart-img" href="#"><img src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.product_id).first().address }}"
 													alt="#"></a>
@@ -209,6 +218,7 @@
 											<p class="quantity">1 X <span class="amount">${{ db_session.query(Product).filter(Product.id==product.product_id).first().price }}</span></p>
 										</li>
 										{% endfor %}
+                                    {% endif %}
 									</ul>
 									<div class="bottom">
 										<div class="total">

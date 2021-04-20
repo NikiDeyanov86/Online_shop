@@ -1,13 +1,11 @@
 import uuid
 import os
 
-
 from flask import Flask
-from flask import render_template, request,\
+from flask import render_template, request, \
     redirect, make_response, url_for, jsonify
 
 from functools import wraps
-
 
 from flask_login import login_user, login_required, current_user, logout_user
 from werkzeug.middleware.shared_data import SharedDataMiddleware
@@ -16,7 +14,7 @@ from werkzeug.utils import secure_filename
 
 from database import db_session, init_db
 from login import login_manager
-from models import User, Product, Category, Photo, Wishlist, Cart, Order,\
+from models import User, Product, Category, Photo, Wishlist, Cart, Order, \
     association_table, UserProduct
 
 import recomendations
@@ -32,7 +30,6 @@ from pprint import pprint
 
 app = Flask(__name__)
 
-
 app.secret_key = SECRET_KEY
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 app.config['UPLOAD_FOLDER'] = './uploads'
@@ -42,9 +39,8 @@ init_db()
 
 app.add_url_rule('/uploads/<filename>', 'uploaded_file', build_only=True)
 app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
-    '/uploads':  app.config['UPLOAD_FOLDER']
+    '/uploads': app.config['UPLOAD_FOLDER']
 })
-
 
 ADMIN = User.query.filter_by(email=EMAIL, role="admin").first()
 if not ADMIN:
@@ -67,6 +63,7 @@ def admin_login_required(func):
         if role != "admin":
             return login_manager.unauthorized()
         return func(*args, **kwargs)
+
     return decorated_view
 
 
@@ -77,9 +74,14 @@ def shutdown_context(exception=None):
 
 @app.route('/')
 def home():
-    return render_template('index.html', products=Product.query.all(), cart=Cart.query.filter_by(
-            user_id=current_user.id).all(),
-                           db_session=db_session, Photo=Photo, Product=Product, Cart=Cart)
+    if 'login_id' in current_user.__dict__:
+        return render_template('index.html', products=Product.query.all(),
+                               cart=Cart.query.filter_by(user_id=current_user.id).all(),
+                               user_id=current_user.id, db_session=db_session, Photo=Photo, Product=Product, Cart=Cart, User=User)
+
+    else:
+        return render_template('index.html', products=Product.query.all(),
+                               db_session=db_session, Photo=Photo, Product=Product, Cart=Cart, User=User)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -358,7 +360,8 @@ def _remove_from_wishlist():
 
 @app.route('/shop_grid')
 def shop_grid():
-    return render_template('shop-grid.html', products = Product.query.all(), db_session=db_session, Photo=Photo, Product=Product)
+    return render_template('shop-grid.html', products=Product.query.all(), db_session=db_session, Photo=Photo,
+                           Product=Product)
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
@@ -443,7 +446,7 @@ def quantity():
     product_id = request.args.get('product_id', type=int)
 
     product = Product.query.filter_by(product_id=product_id).first()
-    if(product is None):
+    if (product is None):
         return jsonify("error")
 
     print(curr)
