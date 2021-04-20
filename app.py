@@ -77,8 +77,9 @@ def shutdown_context(exception=None):
 
 @app.route('/')
 def home():
-    return render_template('index.html', products=Product.query.all(),
-                           db_session=db_session, Photo=Photo, Product=Product)
+    return render_template('index.html', products=Product.query.all(), cart=Cart.query.filter_by(
+            user_id=current_user.id).all(),
+                           db_session=db_session, Photo=Photo, Product=Product, Cart=Cart)
 
 
 @app.route('/register', methods=['GET', 'POST'])
