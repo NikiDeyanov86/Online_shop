@@ -38,7 +38,7 @@
 
         <div>
           <div id="headingTwo">
-            <h5 class="mb-0">
+            <h5 class="mb-3">
               <button class="btn btn-outline-dark btn-lg btn-block" data-toggle="collapse" data-target="#ProductForm"
                 aria-controls="ProductForm">
                 Add Product
@@ -85,7 +85,60 @@
           </div>
         </div>
 
+        <div>
+          <div id="headingThree">
+            <h5 class="mb-0">
+              <button class="btn btn-outline-dark btn-lg btn-block" data-toggle="collapse" data-target="#EmailButtons"
+                aria-controls="EmailButtons">
+                Send email
+              </button>
+            </h5>
+          </div>
+
+          <div id="EmailButtons" class="collapse my-4" aria-labelledby="headingThree" data-parent="#accordion">
+            <div>
+              <button class="btn btn-outline-dark btn-lg btn-block mb-4" value="toAll" name="emailAll">Email All</button>
+              <button class="btn btn-outline-dark btn-lg btn-block" value="test" name="test">test email</button>
+            </div>
+          </div>
+        </div>
+        </div>
       </div>
+
+      <div id="email_results">Hello</div>
+
+      <script>
+        $(document).ready(function(){
+          $("button[name='emailAll']").on("click", function(){
+            $("#email_results").empty();
+            // console.log($(this))
+            $.getJSON($SCRIPT_ROOT + '/_send_email_to_all', {
+            }, function(data) {
+                // $("#search_results").text(data.result);
+                console.log(data)
+
+                $("<span></span>").text(data).appendTo("#email_results");
+            });
+            return false;
+          });
+        });
+
+        $(document).ready(function(){
+          $("button[name='test']").on("click", function(){
+            $("#email_results").empty();
+            console.log("Clicked")
+            // console.log($(this))
+            $.getJSON($SCRIPT_ROOT + '/_send_email', {
+            }, function(data) {
+                // $("#search_results").text(data.result);
+                console.log(data)
+
+                $("<span></span>").text(data).appendTo("#email_results");
+            });
+            return false;
+          });
+        });
+      </script>
 
       <div class="product-area section">
         <div class="container">

@@ -3,6 +3,7 @@
 
 # config files
 /config.py
+/email_config.cfg
 
 # py env
 /pyvenv.cfg
