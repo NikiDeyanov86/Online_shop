@@ -176,22 +176,16 @@
 										<a href="/cart">View Cart</a>
 									</div>
 									<ul class="shopping-list">
+										{% for product in cart %}
 										<li>
 											<a href="#" class="remove" title="Remove this item"><i
 													class="fa fa-remove"></i></a>
-											<a class="cart-img" href="#"><img src="https://via.placeholder.com/70x70"
+											<a class="cart-img" href="#"><img src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.product_id).first().address }}"
 													alt="#"></a>
-											<h4><a href="#">Woman Ring</a></h4>
-											<p class="quantity">1x - <span class="amount">$99.00</span></p>
+											<h4><a href="#">{{ db_session.query(Product).filter(Product.id==product.product_id).first().name }}</a></h4>
+											<p class="quantity">1 X <span class="amount">${{ db_session.query(Product).filter(Product.id==product.product_id).first().price }}</span></p>
 										</li>
-										<li>
-											<a href="#" class="remove" title="Remove this item"><i
-													class="fa fa-remove"></i></a>
-											<a class="cart-img" href="#"><img src="https://via.placeholder.com/70x70"
-													alt="#"></a>
-											<h4><a href="#">Woman Necklace</a></h4>
-											<p class="quantity">1x - <span class="amount">$35.00</span></p>
-										</li>
+										{% endfor %}
 									</ul>
 									<div class="bottom">
 										<div class="total">

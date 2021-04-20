@@ -357,7 +357,7 @@ def _remove_from_wishlist():
 
 @app.route('/shop_grid')
 def shop_grid():
-    return render_template('shop-grid.html')
+    return render_template('shop-grid.html', products = Product.query.all(), db_session=db_session, Photo=Photo, Product=Product)
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
