@@ -18,6 +18,7 @@ from models import User, Product, Category, Photo, Wishlist, Cart, Order, \
     association_table, UserProduct
 
 import recomendations
+from flask_mail import Mail, Message
 
 from datetime import datetime
 
@@ -41,6 +42,11 @@ app.add_url_rule('/uploads/<filename>', 'uploaded_file', build_only=True)
 app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
     '/uploads': app.config['UPLOAD_FOLDER']
 })
+
+app.config.from_pyfile('email_config.cfg')
+
+mail = Mail(app)
+
 
 ADMIN = User.query.filter_by(email=EMAIL, role="admin").first()
 if not ADMIN:
@@ -501,3 +507,33 @@ def product_details(product_id):
     return render_template(
         "product_details.html", product=product, recomendations=r[:5],
         db_session=db_session, Product=Product, Photo=Photo)
+
+
+@admin_login_required
+@app.route('/_send_email_to_all')
+def _send_email_to_all():
+    users = User.query.all()
+
+    with mail.connect() as conn:
+        for user in users:
+            message = 'test'
+            subject = "hello, %s" % user.email
+            msg = Message(recipients=[user.email],
+                          body=message,
+                          subject=subject)
+
+            conn.send(msg)
+
+    return jsonify("send to all")
+
+
+@admin_login_required
+@app.route('/_send_email')
+def _send_email():
+    user = User.query.filter_by(email=EMAIL).first()
+
+    msg = Message('Confirm Email', recipients=[user.email])
+    msg.body = 'test'
+    mail.send(msg)
+
+    return jsonify("send to test")
