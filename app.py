@@ -82,8 +82,9 @@ def shutdown_context(exception=None):
 
 @app.route('/')
 def home():
-    return render_template('index.html', products=Product.query.all(),
-                           db_session=db_session, Photo=Photo, Product=Product)
+    return render_template('index.html', products=Product.query.all(), cart=Cart.query.filter_by(
+            user_id=current_user.id).all(),
+                           db_session=db_session, Photo=Photo, Product=Product, Cart=Cart)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -362,7 +363,7 @@ def _remove_from_wishlist():
 
 @app.route('/shop_grid')
 def shop_grid():
-    return render_template('shop-grid.html')
+    return render_template('shop-grid.html', products = Product.query.all(), db_session=db_session, Photo=Photo, Product=Product)
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
