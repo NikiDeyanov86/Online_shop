@@ -374,7 +374,7 @@ def shop_grid():
 @login_required
 def checkout():
     if request.method == 'GET':
-        return render_template('checkout.html')
+        return render_template('checkout.html', db_session=db_session, Cart=Cart, User=User, user_id=current_user.id)
     else:
         user_id = current_user.id
         first_name = request.form.get("name")
