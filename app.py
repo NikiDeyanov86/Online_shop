@@ -15,7 +15,7 @@ from werkzeug.utils import secure_filename
 from database import db_session, init_db
 from login import login_manager
 from models import User, Product, Category, Photo, Wishlist, Cart, Order, \
-    association_table, UserProduct
+    association_table, UserProduct, RatingProduct
 
 import recomendations
 from flask_mail import Mail, Message
@@ -262,25 +262,25 @@ def cart():
 @login_required
 def _add_to_cart():
     product_id = request.args.get('product_id', type=int)
-
-    cart = Cart(product_id=product_id, user_id=current_user.id)
+    cart = Cart.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+    if cart:
+        cart.quantity += 1
+    else:
+        cart = Cart(product_id=product_id, user_id=current_user.id)
 
     product = Product.query.filter_by(id=product_id).first()
 
-    if current_user.login_id is not None:
-        user_product = UserProduct.query.filter_by(
-            user=current_user, product=product).first()
 
-        if user_product is None:
-            user_product = UserProduct(
-                user=current_user, product=product, status=2)
-        else:
-            user_product.status = 2
+    user_product = UserProduct.query.filter_by(
+        user=current_user, product=product).first()
 
-        db_session.add(user_product)
+    if user_product is None:
+        user_product = UserProduct(
+            user=current_user, product=product, status=2)
+    else:
+        user_product.status = 2
 
-        db_session.commit()
-
+    db_session.add(user_product)
     db_session.add(cart)
     db_session.commit()
 
@@ -506,7 +506,7 @@ def product_details(product_id):
 
     return render_template(
         "product_details.html", product=product, recomendations=r[:5],
-        db_session=db_session, Product=Product, Photo=Photo, Cart=Cart, User=User, user_id=current_user.id)
+        db_session=db_session, Product=Product, Photo=Photo, Cart=Cart, User=User)
 
 
 @admin_login_required
@@ -537,3 +537,22 @@ def _send_email():
     mail.send(msg)
 
     return jsonify("send to test")
+
+
+@app.route('/product/<int:product_id>/_add_rating', methods=['POST'])
+@login_required
+def _add_rating(product_id):
+    stars = request.form.get("star")
+    rating_comment = request.form.get("rating_comment")
+
+    rating = RatingProduct.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+    if not rating:
+        rating = RatingProduct(user_id=current_user.id, product_id=product_id,
+                               rating=stars, rating_comment=rating_comment)
+    else:
+        rating.rating = stars
+        rating.rating_comment = rating_comment
+    db_session.add(rating)
+    db_session.commit()
+
+    return redirect(url_for('product_details', product_id=product_id))

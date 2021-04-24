@@ -182,34 +182,7 @@
                         </div>
                         <!--/ End Search Form -->
                     </div>
-                    <div class="col-lg-2 col-md-3 col-12">
-                        <div class="right-bar">
-                            <!-- Search Form -->
-                            <div class="sinlge-bar shopping">
-                                <a href="/admin" class="single-icon"><i class="fa fa-user-circle-o"
-                                        aria-hidden="true"></i></a>
-                                <div class="shopping-item">
 
-                                    <ul>
-                                        {% if 'login_id' not in current_user.__dict__ %}
-                                        <li>
-                                            <a href="/login">Sign in</a>
-
-                                        </li>
-                                        <li>
-                                            <a href="/register">Sign up</a>
-
-                                        </li>
-                                        {% else %}
-                                        <li>
-                                            <a href="/logout">Log out</a>
-                                        </li>
-                                    </ul>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

@@ -1,9 +1,15 @@
 {% extends "base.html" %}
+{#<link rel="stylesheet" href="/static/css/rating.css">  <!-- TODO is this working -->#}
 
 <!-- Change the title -->
 {% block title %} Product details {% endblock %}
 
+{% block head %}
+    <link rel="stylesheet" href="/static/css/rating.css">
+{% endblock %}
+
 {% block content %}
+
 
 <script type=text/javascript>
     $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
@@ -19,9 +25,12 @@
                     <div class="product-img">
                         <a>
                             <img class="default-img"
-                                src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}" alt="#">
+                                src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
+                                onerror=this.src="../static/images/no-image-icon.png"
+                                alt="">
                             <img class="hover-img" src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
-                                alt="#">
+                                onerror=this.src="../static/images/no-image-icon.png"
+                                alt="">
                         </a>
                         <div class="button-head">
                             <div class="product-action">
@@ -90,12 +99,65 @@
                 <label for="Description">Description</label>
                 <h5> {{ product.description }} </h5>
             </div>
-
-
-
             <div class="form-group">
                 <label for="product_price">Product Price</label>
-                <h4> {{ product.price }} </h4>
+                <h4> {{ product.price }} $</h4>
+            </div>
+
+
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-outline-warning" data-toggle="modal" data-target="#RatingModal">
+              Leave a rating
+            </button>
+
+
+            <!-- Modal -->
+            <div class="modal fade" id="RatingModal" tabindex="-1" role="dialog" aria-labelledby="ratingModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <div class="rating-text">
+                        <h1 class="modal-title" id="ratingModalLabel" >Rate this product</h1>
+                    </div>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body rating-body">
+                    <!-------- modal body ------->
+                        <div class="container d-flex justify-content-center mt-200">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="stars">
+                                        <form id="ratingForm" method="post" action="/product/{{ product.id }}/_add_rating">
+                                            <input class="star star-5" id="star-5" type="radio" name="star" value="5"/>
+                                            <label class="star star-5" for="star-5"></label>
+                                            <input class="star star-4" id="star-4" type="radio" name="star" value="4"/>
+                                            <label class="star star-4" for="star-4"></label>
+                                            <input class="star star-3" id="star-3" type="radio" name="star" value="3"/>
+                                            <label class="star star-3" for="star-3"></label>
+                                            <input class="star star-2" id="star-2" type="radio" name="star" value="2"/>
+                                            <label class="star star-2" for="star-2"></label>
+                                            <input class="star star-1" id="star-1" type="radio" name="star" value="1" required/>
+                                            <label class="star star-1" for="star-1"></label>
+
+                                            <div class="form-group text-center">
+                                                <label for="exampleFormControlTextarea1">Comment on your experience</label>
+                                                <textarea class="form-control" id="exampleFormControlTextarea1" name="rating_comment" rows="3"></textarea>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <!-------- modal body END ------->
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" form="ratingForm" class="btn btn-warning" style="background-color: #fca842">Rate</button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="form-group">

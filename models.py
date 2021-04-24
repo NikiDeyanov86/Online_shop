@@ -29,6 +29,7 @@ class User(Base):
 
     # products = relationship("Product", secondary=association_table)
     products = relationship('Product', secondary='UserProduct')
+    ratings = relationship('Product', secondary='RatingProduct')
 
     # role is 'basic' or 'admin'
     role = Column(String(6), default="basic")
@@ -72,9 +73,6 @@ class Product(Base):
     name = Column(String(80), nullable=False)
     description = Column(String(500), nullable=True)
     price = Column(Float, nullable=False)
-    rating = Column(Float, default=0)
-    # Counts the times the product was rated
-    rated = Column(Integer, default=0)
 
     category_id = Column(Integer, ForeignKey(
         'Category.id', ondelete="CASCADE"))
@@ -90,6 +88,8 @@ class Product(Base):
                             cascade=DELETE_ALL, passive_deletes=True)
 
     users = relationship('User', secondary='UserProduct')
+
+    ratings = relationship('User', secondary='RatingProduct')
 
 
 class Photo(Base):
@@ -155,3 +155,16 @@ class UserProduct(Base):
 
     user = relationship(User, backref=backref("products_assoc"))
     product = relationship(Product, backref=backref("users_assoc"))
+
+
+class RatingProduct(Base):
+    __tablename__ = 'RatingProduct'
+
+    user_id = Column(Integer, ForeignKey('User.id'), primary_key=True)
+    product_id = Column(Integer, ForeignKey('Product.id'), primary_key=True)
+    rating = Column(Integer)
+
+    user = relationship(User, backref=backref("rating_user_assoc"))
+    product = relationship(Product, backref=backref("rating_product_assoc"))
+    rating_comment = Column(String(120), nullable=True)
+

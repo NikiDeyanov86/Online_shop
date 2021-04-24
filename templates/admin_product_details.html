@@ -14,11 +14,14 @@
             <div class="col-10">
                 <div class="single-product">
                     <div class="product-img">
-                        <a href="product-details.html">
+                        <a>
                             <img class="default-img"
-                                src="{{ db_session.query(Photo).outerjoin(Product).first().address}}" alt="#">
-                            <img class="hover-img" src="{{ db_session.query(Photo).outerjoin(Product).first().address}}"
-                                alt="#">
+                                src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
+                                onerror=this.src="../static/images/no-image-icon.png"
+                                alt="">
+                            <img class="hover-img" src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
+                                onerror=this.src="../static/images/no-image-icon.png"
+                                alt="">
                         </a>
                         <div class="button-head">
                             <div class="product-action">
