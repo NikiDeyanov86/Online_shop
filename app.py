@@ -467,6 +467,15 @@ def product_details(product_id):
 
     r = []
 
+    current_product_all_stars = 0
+    current_product_all_people = 0
+    for row in RatingProduct.query.filter_by(product_id=product_id):  # TODO check if this should be like that
+        current_product_all_stars += row.rating
+        current_product_all_people += 1
+
+    print(current_product_all_stars)
+    print(current_product_all_people)
+
     if 'login_id' in current_user.__dict__:
         user_product = UserProduct.query.filter_by(
             user=current_user, product=product).first()
@@ -506,6 +515,8 @@ def product_details(product_id):
 
     return render_template(
         "product_details.html", product=product, recomendations=r[:5],
+        current_product_all_people=current_product_all_people,
+        current_product_all_stars=current_product_all_stars,
         db_session=db_session, Product=Product, Photo=Photo, Cart=Cart, User=User)
 
 
