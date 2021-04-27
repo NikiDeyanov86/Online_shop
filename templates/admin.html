@@ -35,7 +35,6 @@
           </div>
         </div>
 
-
         <div>
           <div id="headingTwo">
             <h5 class="mb-3">
@@ -85,6 +84,61 @@
           </div>
         </div>
 
+        <div class="mb-3">
+          <div id="headingCode">
+            <h5 class="mb-0">
+              <button class="btn btn-outline-dark btn-lg btn-block" data-toggle="collapse" data-target="#PromoForm"
+                aria-controls="PromoForm">
+                Add Code
+              </button>
+            </h5>
+          </div>
+
+          <script>
+            function generateCode() {
+              var result = [];
+              var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+              var charactersLength = characters.length;
+              for (var i = 0; i < 36; i++) {
+                result.push(characters.charAt(Math.floor(Math.random() *
+                  charactersLength)));
+              }
+              $("#code").val(result.join(''));
+            }
+          </script>
+          <div id="PromoForm" class="collapse my-4" aria-labelledby="headingCode" data-parent="#accordion">
+            <form method="POST">
+              <div class="form-group">
+                <label for="discount">Discount</label>
+                <input name="discount" required type="number" class="form-control" id="discount">
+              </div>
+              <div class="form-group">
+                <div class="row">
+                  <div class="col-10">
+                    <label for="code">Promo Code</label>
+                    <input name="code" required type="text" class="form-control" id="code">
+                  </div>
+                  <div class="col-2">
+                    <button type="button" class="btn" onclick="generateCode()"><em class="bi bi-arrow-repeat"
+                        style="font-size: 2rem;"></em></button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="code_type">Type</label>
+                <select name="code_type" class="form-control" id="code_type">
+                  <option value="p">Percent</option>
+                  <option value="a">Absolute</option>
+                </select>
+              </div>
+
+              <button class="btn btn-outline-dark btn-lg btn-block" value="PromoCode" name="Submit"
+                type="submit">Submit</button>
+            </form>
+          </div>
+        </div>
+
         <div>
           <div id="headingThree">
             <h5 class="mb-0">
@@ -97,99 +151,181 @@
 
           <div id="EmailButtons" class="collapse my-4" aria-labelledby="headingThree" data-parent="#accordion">
             <div>
-              <button class="btn btn-outline-dark btn-lg btn-block mb-4" value="toAll" name="emailAll">Email All</button>
+              <button class="btn btn-outline-dark btn-lg btn-block mb-4" value="toAll" name="emailAll">Email
+                All</button>
               <button class="btn btn-outline-dark btn-lg btn-block" value="test" name="test">test email</button>
             </div>
           </div>
         </div>
-        </div>
       </div>
+    </div>
 
-      <div id="email_results">Hello</div>
+    <div id="email_results">Hello</div>
 
-      <script>
-        $(document).ready(function(){
-          $("button[name='emailAll']").on("click", function(){
-            $("#email_results").empty();
-            // console.log($(this))
-            $.getJSON($SCRIPT_ROOT + '/_send_email_to_all', {
-            }, function(data) {
-                // $("#search_results").text(data.result);
-                console.log(data)
+    <script>
+      $(document).ready(function () {
+        $("button[name='emailAll']").on("click", function () {
+          $("#email_results").empty();
+          // console.log($(this))
+          $.getJSON($SCRIPT_ROOT + '/_send_email_to_all', {
+          }, function (data) {
+            // $("#search_results").text(data.result);
+            console.log(data)
 
-                $("<span></span>").text(data).appendTo("#email_results");
-            });
-            return false;
+            $("<span></span>").text(data).appendTo("#email_results");
           });
+          return false;
         });
+      });
 
-        $(document).ready(function(){
-          $("button[name='test']").on("click", function(){
-            $("#email_results").empty();
-            console.log("Clicked")
-            // console.log($(this))
-            $.getJSON($SCRIPT_ROOT + '/_send_email', {
-            }, function(data) {
-                // $("#search_results").text(data.result);
-                console.log(data)
+      $(document).ready(function () {
+        $("button[name='test']").on("click", function () {
+          $("#email_results").empty();
+          console.log("Clicked")
+          // console.log($(this))
+          $.getJSON($SCRIPT_ROOT + '/_send_email', {
+          }, function (data) {
+            // $("#search_results").text(data.result);
+            console.log(data)
 
-                $("<span></span>").text(data).appendTo("#email_results");
-            });
-            return false;
+            $("<span></span>").text(data).appendTo("#email_results");
           });
+          return false;
         });
-      </script>
+      });
+    </script>
 
-      <div class="product-area section">
-        <div class="container">
-          <div class="row">
-            <div class="col-12">
-              <div class="section-title">
-                <h2>Products</h2>
-              </div>
+    <!-- Products -->
+    <div class="product-area section">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <div class="section-title">
+              <h2>Products</h2>
             </div>
           </div>
-          <div class="row">
-            <div class="col-12">
-              <div class="product-info">
-                <div class="tab-content" id="myTabContent">
-                  <!-- Start Single Tab -->
-                  <div class="tab-pane fade show active" id="man" role="tabpanel">
-                    <div class="tab-single">
-                      <div class="row">
-                        {% for product in products %}
-                        <div class="col-xl-3 col-lg-4 col-md-4 col-12">
-                          <div class="single-product">
-                            <div class="product-img">
-                              <a href="/admin/product/{{ product.id }}">
-                                <img class="default-img" src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}" onerror=this.src="../static/images/no-image-icon.png">
-                                <img class="hover-img" src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}" onerror=this.src="../static/images/no-image-icon.png">
-                              </a>
-                            </div>
-                            <div class="product-content">
-                              <h3><a href="/admin/product/{{ product.id }}">{{ product.name }}</a></h3>
-                              <div class="product-price">
-                                <span>${{ product.price }} лв</span>
-                                <span class="float-right">
-                                  <a href="/admin/product/{{ product.id }}"><em class="bi bi-gear-fill"></em></a>
-                                </span>
-                              </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <div class="product-info">
+              <div class="tab-content" id="myTabContent">
+                <!-- Start Single Tab -->
+                <div class="tab-pane fade show active" id="man" role="tabpanel">
+                  <div class="tab-single">
+                    <div class="row">
+                      {% for product in products %}
+                      <div class="col-xl-3 col-lg-4 col-md-4 col-12">
+                        <div class="single-product">
+                          <div class="product-img">
+                            <a href="/admin/product/{{ product.id }}">
+                              <img class="default-img"
+                                src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
+                                onerror=this.src="../static/images/no-image-icon.png">
+                              <img class="hover-img"
+                                src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
+                                onerror=this.src="../static/images/no-image-icon.png">
+                            </a>
+                          </div>
+                          <div class="product-content">
+                            <h3><a href="/admin/product/{{ product.id }}">{{ product.name }}</a></h3>
+                            <div class="product-price">
+                              <span>${{ product.price }} лв</span>
+                              <span class="float-right">
+                                <a href="/admin/product/{{ product.id }}"><em class="bi bi-gear-fill"></em></a>
+                              </span>
                             </div>
                           </div>
                         </div>
-                        {% endfor %}
                       </div>
+                      {% endfor %}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
+
+      </div>
+    </div>
+
+    <!-- Codes -->
+    <div class="product-area section">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <div class="section-title">
+              <h2>Codes</h2>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <div class="product-info">
+              <div class="tab-content" id="myTabContent">
+                <!-- Start Single Tab -->
+                <div class="tab-pane fade show active" id="man" role="tabpanel">
+                  <div class="tab-single">
+                    <table class="table shopping-summery">
+                      <thead>
+                        <tr class="main-hading">
+                          <th id="CODE">CODE</th>
+                          <th id="DISCOUNT">DISCOUNT</th>
+                          <th id="REMOVE" class="text-center"><em class="ti-trash remove-icon"></em></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+
+                        {% for code in codes %}
+                        <tr>
+                          <td class="product-des" data-title="CODE">
+                            <p class="product-name">
+                              {{ code.code }}
+                            </p>
+                          </td>
+                          <td class="product-des" data-title="DISCOUNT">
+                            <p class="product-name">
+                              {{ str(code.discount) + "%" if code.code_type == 'p' else "$" + str(code.discount) }}
+                            </p>
+                          </td>
+                          <td class="action" data-title="REMOVE">
+                            <a href="#" id="remove_{{ code.id }}">
+                              <em class="ti-trash remove-icon"></em>
+                            </a>
+
+                            <script type=text/javascript>
+                                $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+                            </script>
+
+                            <script type=text/javascript>
+                              $(function() {
+                                $('a#remove_{{ code.id }}').bind('click', function() {
+                                $.getJSON($SCRIPT_ROOT + '/_remove_code', {
+                                  code_id: {{ code.id }}
+                                }, function(data) {
+                                  console.log(data);
+                                  location.reload();
+                                });
+                                return false;
+                                });
+                              });
+                            </script>
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
+</div>
 
 </div>
 

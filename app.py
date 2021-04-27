@@ -15,7 +15,7 @@ from werkzeug.utils import secure_filename
 from database import db_session, init_db
 from login import login_manager
 from models import User, Product, Category, Photo, Wishlist, Cart, Order, \
-    association_table, UserProduct, RatingProduct
+    UserProduct, RatingProduct, PromoCode
 from pprint import pprint
 
 import recomendations
@@ -83,12 +83,16 @@ def shutdown_context(exception=None):
 def home():
     if 'login_id' in current_user.__dict__:
         return render_template('index.html', products=Product.query.all(),
-                               cart=Cart.query.filter_by(user_id=current_user.id).all(),
-                               user_id=current_user.id, db_session=db_session, Photo=Photo, Product=Product, Cart=Cart, User=User)
+                               cart=Cart.query.filter_by(
+                                   user_id=current_user.id).all(),
+                               user_id=current_user.id, db_session=db_session,
+                               Photo=Photo, Product=Product, Cart=Cart,
+                               User=User)
 
     else:
         return render_template('index.html', products=Product.query.all(),
-                               db_session=db_session, Photo=Photo, Product=Product, Cart=Cart, User=User)
+                               db_session=db_session, Photo=Photo,
+                               Product=Product, Cart=Cart, User=User)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -144,7 +148,7 @@ def admin():
 
         db_session.add(new_category)
         db_session.commit()
-    else:
+    elif request.form['Submit'] == 'Product':
         name = request.form['product_name']
         description = request.form['product_description']
         category = request.form['product_category']
@@ -177,13 +181,23 @@ def admin():
                 db_session.add(photo)
 
         db_session.commit()
+    else:
+        discount = request.form['discount']
+        code = request.form['code']
+        code_type = request.form['code_type']
+
+        promo = PromoCode(discount=discount, code=code, code_type=code_type)
+
+        db_session.add(promo)
+        db_session.commit()
 
     categories = Category.query.all()
     products = Product.query.all()
+    codes = PromoCode.query.all()
 
     return render_template(
-        'admin.html', categories=categories, products=products,
-        db_session=db_session, Product=Product, Photo=Photo)
+        'admin.html', categories=categories, products=products, str=str,
+        db_session=db_session, Product=Product, Photo=Photo, codes=codes)
 
 
 @app.route('/admin/register', methods=['GET', 'POST'])
@@ -250,6 +264,19 @@ def logout():
     return redirect(url_for('home'))
 
 
+@app.route('/_remove_code')
+@admin_login_required
+def remove_code():
+    code_id = request.args.get('code_id', type=int)
+
+    code = PromoCode.query.filter_by(id=code_id).first()
+
+    db_session.delete(code)
+    db_session.commit()
+
+    return jsonify(result="Deleted")
+
+
 @app.route('/cart')
 @login_required
 def cart():
@@ -261,18 +288,21 @@ def cart():
     return render_template(
         'cart.html', cart=Cart.query.filter_by(
             user_id=current_user.id).all(), db_session=db_session,
-        Product=Product, Photo=Photo, Cart=Cart, User=User, user_id=current_user.id, cart_subtotal=cart_subtotal)
+        Product=Product, Photo=Photo, Cart=Cart, User=User,
+        cart_subtotal=cart_subtotal)
 
 
 @app.route('/_add_to_cart')
 @login_required
 def _add_to_cart():
     product_id = request.args.get('product_id', type=int)
-    cart = Cart.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+    cart = Cart.query.filter_by(user_id=current_user.id,
+                                product_id=product_id).first()
     if cart:
         cart.quantity += 1
     else:
-        cart = Cart(product_id=product_id, user_id=current_user.id, quantity=1, total=0)
+        cart = Cart(product_id=product_id, user_id=current_user.id,
+                    quantity=1, total=0)
 
     product = Product.query.filter_by(id=product_id).first()
     pprint(cart.__dict__)
@@ -373,8 +403,9 @@ def _remove_from_wishlist():
 
 @app.route('/shop_grid')
 def shop_grid():
-    return render_template('shop-grid.html', products=Product.query.all(), db_session=db_session, Photo=Photo,
-                           Product=Product, Cart=Cart)
+    return render_template('shop-grid.html', products=Product.query.all(),
+                           db_session=db_session, Photo=Photo, Product=Product,
+                           Cart=Cart)
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
@@ -493,7 +524,9 @@ def product_details(product_id):
 
     current_product_all_stars = 0
     current_product_all_people = 0
-    for row in RatingProduct.query.filter_by(product_id=product_id):  # TODO check if this should be like that
+
+    # TODO check if this should be like that
+    for row in RatingProduct.query.filter_by(product_id=product_id):
         current_product_all_stars += row.rating
         current_product_all_people += 1
 
@@ -541,7 +574,8 @@ def product_details(product_id):
         "product_details.html", product=product, recomendations=r[:5],
         current_product_all_people=current_product_all_people,
         current_product_all_stars=current_product_all_stars,
-        db_session=db_session, Product=Product, Photo=Photo, Cart=Cart, User=User)
+        db_session=db_session, Product=Product, Photo=Photo,
+        Cart=Cart, User=User)
 
 
 @admin_login_required
@@ -580,7 +614,8 @@ def _add_rating(product_id):
     stars = request.form.get("star")
     rating_comment = request.form.get("rating_comment")
 
-    rating = RatingProduct.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+    rating = RatingProduct.query.filter_by(user_id=current_user.id,
+                                           product_id=product_id).first()
     if not rating:
         rating = RatingProduct(user_id=current_user.id, product_id=product_id,
                                rating=stars, rating_comment=rating_comment)

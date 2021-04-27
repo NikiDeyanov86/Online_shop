@@ -6,13 +6,6 @@ from sqlalchemy.sql.schema import Table
 
 DELETE_ALL = "all, delete"
 
-association_table = Table('association', Base.metadata,
-                          Column('user_id', Integer, ForeignKey('User.id')),
-                          Column('product_id', Integer,
-                                 ForeignKey('Product.id')),
-                          Column('status', Integer, default=0)
-                          )
-
 
 class User(Base):
     __tablename__ = "User"
@@ -27,7 +20,6 @@ class User(Base):
     user_cart = relationship("Cart", back_populates="user",
                              cascade=DELETE_ALL, passive_deletes=True)
 
-    # products = relationship("Product", secondary=association_table)
     products = relationship('Product', secondary='UserProduct')
     ratings = relationship('Product', secondary='RatingProduct')
 
@@ -156,6 +148,17 @@ class UserProduct(Base):
 
     user = relationship(User, backref=backref("products_assoc"))
     product = relationship(Product, backref=backref("users_assoc"))
+
+
+class PromoCode(Base):
+    __tablename__ = "PromoCode"
+
+    id = Column(Integer, primary_key=True)
+    discount = Column(Integer, nullable=False)
+    code = Column(String(37), nullable=False)
+
+    # p(percent) or a(absolute)
+    code_type = Column(String(2), default="p")
 
 
 class RatingProduct(Base):
