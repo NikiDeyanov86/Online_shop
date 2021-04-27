@@ -51,11 +51,11 @@ label.star:before {
 /*====================== FOR RATING SHOW ==================*/
 
 #leave-rating-button {
-    background-color: #e4741c;
+    background-color: #F59118;
     color: #FFFFFF;
 }
 #leave-rating-button:hover {
-    background-color: #c96518;
+    background-color: #eb860e;
 }
 
 .star-ratings {

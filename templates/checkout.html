@@ -4,9 +4,9 @@
 
 {% block head %}
 
-
-
 <style>
+
+
 	/* The Modal (background) */
 	.modal {
 		display: none;
@@ -113,7 +113,7 @@
                                 <h2>CART TOTALS</h2>
                                 <div class="content">
                                     <ul>
-                                        <li>Sub Total<span>$330.00</span></li>
+                                        <li>Subtotal<span>{{ cart_subtotal }}</span></li>
                                         <li>(+) Shipping<span>$10.00</span></li>
                                         <li class="last">Total<span>$340.00</span></li>
                                     </ul>
@@ -145,7 +145,7 @@
                             <!-- Button Widget -->
                             <div class="single-widget get-button">
                                 <div class="content">
-                                    <button class="button btn" type="submit" form="main_form" style="z-index: auto;">
+                                    <button class="button btn" type="submit" form="main_form" style="z-index: auto; color: #0b0b0b">
                                         Proceed to checkout
                                     </button>
                                 </div>
@@ -159,10 +159,15 @@
 		</div>
 		<div class="row">
 			<div class="col-lg-8 col-12">
-				<button type="button" id="add-address-button" class="btn btn-outline-warning"
-					data-toggle="modal" data-target="#RatingModal">
-					Add a new address
-				</button>
+                <!-- Button Widget -->
+                <div class="single-widget get-button">
+                    <div class="content">
+                        <button class="button btn" id="add-address-button" type="button" form="main_form" style="z-index: auto; color: #0b0b0b">
+                            Add a new address
+                        </button>
+                    </div>
+                </div>
+                <!--/ End Button Widget -->
 
 				<!-- The Modal -->
 				<div id="addressModal" class="modal">

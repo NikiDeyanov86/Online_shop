@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{#<link rel="stylesheet" href="/static/css/rating.css">  <!-- TODO is this working -->#}
 
 <!-- Change the title -->
 {% block title %} Product details {% endblock %}
@@ -143,9 +142,19 @@
 
 
             <!-- Button trigger modal -->
-            <button type="button" id="leave-rating-button" class="btn btn-outline-warning" data-toggle="modal" data-target="#RatingModal">
-              Leave a rating
-            </button>
+            <div class="single-widget get-button">
+                <div class="content">
+                    <!-- Button Widget -->
+                    <div class="single-widget get-button">
+                        <div class="content">
+                            <button class="button btn" id="leave-rating-button" type="button" data-target="#RatingModal" data-toggle="modal" style="z-index: auto; color: #0b0b0b">
+                                Leave a rating
+                            </button>
+                        </div>
+                    </div>
+                    <!--/ End Button Widget -->
+                </div>
+            </div>
 
             <!-- Modal -->
             <div class="modal fade" id="RatingModal" tabindex="-1" role="dialog" aria-labelledby="ratingModalLabel" aria-hidden="true">
@@ -195,7 +204,7 @@
                 </div>
               </div>
             </div>
-
+            <br>
             <div class="form-group">
                 <label for="product-pic">Product Photos</label>
                 <img src="{{ product.photo }}">

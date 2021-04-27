@@ -207,7 +207,7 @@
 										<a href="/cart">View Cart</a>
 									</div>
 									<ul class="shopping-list">
-                                    {% if 'login_id' in current_user.__dict__ %}  <!-- TODO is this working -->
+                                    {% if 'login_id' in current_user.__dict__ %}
 										{% for product in cart %}
 										<li>
 											<a href="/_remove_from_cart" class="remove" title="Remove this item"><i
@@ -215,7 +215,7 @@
 											<a class="cart-img" href="#"><img src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.product_id).first().address }}"
 													alt="#"></a>
 											<h4><a href="#">{{ db_session.query(Product).filter(Product.id==product.product_id).first().name }}</a></h4>
-											<p class="quantity">1 X <span class="amount">${{ db_session.query(Product).filter(Product.id==product.product_id).first().price }}</span></p>
+											<p class="quantity">{{ db_session.query(Product).filter(Product.id==product.product_id).first().quantity }} X <span class="amount">${{ db_session.query(Product).filter(Product.id==product.product_id).first().price }}</span></p>
 										</li>
 										{% endfor %}
                                     {% endif %}
@@ -223,7 +223,11 @@
 									<div class="bottom">
 										<div class="total">
 											<span>Total</span>
-											<span class="total-amount">$134.00</span>
+                                            {% if 'login_id' in current_user.__dict__ %}
+											    <span class="total-amount">${{ cart_subtotal }}</span>
+                                            {% else %}
+                                                <span class="total-amount">$0.00</span>
+                                            {% endif %}
 										</div>
 										<a href="/checkout" class="btn animate">Checkout</a>
 									</div>
