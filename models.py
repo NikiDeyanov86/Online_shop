@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, TIMESTAMP
 from sqlalchemy.orm import relationship, backref
 from database import Base
 from sqlalchemy.sql.schema import Table
@@ -137,6 +137,7 @@ class Order(Base):
     address2 = Column(String(100), unique=False, nullable=True)
     postal = Column(String(10), unique=False, nullable=False)
     company = Column(String(40), unique=False, nullable=True)
+    date = Column(TIMESTAMP, nullable=False)
 
 
 class UserProduct(Base):

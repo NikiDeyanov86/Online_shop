@@ -30,6 +30,8 @@ import json
 
 from pprint import pprint
 
+from datetime import datetime
+
 app = Flask(__name__)
 
 app.secret_key = SECRET_KEY
@@ -426,12 +428,15 @@ def checkout():
             address2 = request.form.get("address2")
             postal= request.form.get("postal")
             company = request.form.get("company_name")
+            now = datetime.now()
+            date = datetime.timestamp(now)
+            now = now + datetime.timedelta(days=5, hours=1)
 
             order = Order(user_id=user_id, first_name=first_name,
                       last_name=last_name, email=email,
                       phone_number=phone_number,
                       country=country, state=state, address1=address1,
-                      address2=address2, postal=postal, company=company)
+                      address2=address2, postal=postal, company=company, date=now)
 
             db_session.add(order)
             db_session.commit()
@@ -450,10 +455,14 @@ def checkout():
 @app.route('/order_confirmation', methods=['POST'])
 @login_required
 def order_confirm():
-    
+    cart_subtotal = 0
+    for product in Cart.query.filter_by(user_id=current_user.id):
+        cart_subtotal += product.total
+    print(cart_subtotal)
     order = Order.query.filter_by(id=request.form['options']).first()
 
-    return render_template('order_confirmation.html', order=order, Order=Order)
+    return render_template('order_confirmation.html', order=order, Order=Order, db_session=db_session, cart=Cart.query.filter_by(
+            user_id=current_user.id).all(), Cart=Cart, Photo=Photo, Product=Product, cart_subtotal=cart_subtotal)
 
 @app.route('/contact')
 def contact():
