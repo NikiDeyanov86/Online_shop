@@ -23,7 +23,7 @@ from flask_mail import Mail, Message
 from datetime import datetime
 
 from config import SECRET_KEY, EMAIL, PASSWORD
-from utils import validate_file_type
+from utils import validate_file_type, _send_email, _send_email_to_all, _send_targeted_email
 from flask.json import jsonify
 import json
 
@@ -185,7 +185,7 @@ def admin():
                 db_session.add(photo)
 
         db_session.commit()
-    else:
+    elif request.form['Submit'] == 'PromoCode':
         discount = request.form['discount']
         code = request.form['code']
         code_type = request.form['code_type']
@@ -194,6 +194,40 @@ def admin():
 
         db_session.add(promo)
         db_session.commit()
+    else:
+        subject = request.form['subject']
+        email_content = request.form['email_content']
+
+        if request.form['Submit'] == "toAll":
+            _send_email_to_all(User, mail, Message, jsonify, subject, email_content)
+        elif request.form['Submit'] == "targeted":
+            product_id = int(request.form['product_id'])
+
+            users = User.query.all()
+            products = Product.query.all()
+
+            user_products = {user.id: {product.id: 0 for product in products}
+                             for user in users}
+
+            u_products = UserProduct.query.all()
+
+            for p in u_products:
+                user_products[p.user_id][p.product_id] = p.status
+
+            pprint(user_products)
+
+            products = recomendations.transform_prefs(user_products)
+            r = recomendations.get_recommendations(products, product_id)
+            r = [p for p in r if p[0] > 0]
+            pprint(r)
+
+            users = [User.query.filter_by(id=rec[1]).first() for rec in r]
+
+            pprint(users)
+
+            _send_targeted_email(users, mail, Message, jsonify, subject, email_content)
+        else:
+            _send_email(User, EMAIL, Message, mail, jsonify, subject, email_content)
 
     categories = Category.query.all()
     products = Product.query.all()
@@ -432,17 +466,17 @@ def checkout():
             state = request.form.get("state-province")
             address1 = request.form.get("address1")
             address2 = request.form.get("address2")
-            postal= request.form.get("postal")
+            postal = request.form.get("postal")
             company = request.form.get("company_name")
             now = datetime.now()
             date = datetime.timestamp(now)
             # now = now + datetime.timedelta(days=5, hours=1)
 
             order = Order(user_id=user_id, first_name=first_name,
-                      last_name=last_name, email=email,
-                      phone_number=phone_number,
-                      country=country, state=state, address1=address1,
-                      address2=address2, postal=postal, company=company, date=now)
+                          last_name=last_name, email=email,
+                          phone_number=phone_number,
+                          country=country, state=state, address1=address1,
+                          address2=address2, postal=postal, company=company, date=now)
 
             db_session.add(order)
             db_session.commit()
@@ -456,7 +490,7 @@ def checkout():
             pprint(order)
 
             return redirect(url_for('checkout'))
-    
+
 
 @app.route('/order_confirmation', methods=['POST'])
 @login_required
@@ -468,7 +502,8 @@ def order_confirm():
     order = Order.query.filter_by(id=request.form['options']).first()
 
     return render_template('order_confirmation.html', order=order, Order=Order, db_session=db_session, cart=Cart.query.filter_by(
-            user_id=current_user.id).all(), Cart=Cart, Photo=Photo, Product=Product, cart_subtotal=cart_subtotal)
+        user_id=current_user.id).all(), Cart=Cart, Photo=Photo, Product=Product, cart_subtotal=cart_subtotal)
+
 
 @app.route('/contact')
 def contact():
@@ -593,36 +628,6 @@ def product_details(product_id):
         Cart=Cart, User=User)
 
 
-@admin_login_required
-@app.route('/_send_email_to_all')
-def _send_email_to_all():
-    users = User.query.all()
-
-    with mail.connect() as conn:
-        for user in users:
-            message = 'test'
-            subject = "hello, %s" % user.email
-            msg = Message(recipients=[user.email],
-                          body=message,
-                          subject=subject)
-
-            conn.send(msg)
-
-    return jsonify("send to all")
-
-
-@admin_login_required
-@app.route('/_send_email')
-def _send_email():
-    user = User.query.filter_by(email=EMAIL).first()
-
-    msg = Message('Confirm Email', recipients=[user.email])
-    msg.body = 'test'
-    mail.send(msg)
-
-    return jsonify("send to test")
-
-
 @app.route('/product/<int:product_id>/_add_rating', methods=['POST'])
 @login_required
 def _add_rating(product_id):
@@ -641,3 +646,21 @@ def _add_rating(product_id):
     db_session.commit()
 
     return redirect(url_for('product_details', product_id=product_id))
+
+
+@app.route('/_add_promo')
+@login_required
+def add_promo():
+    code = request.args['code']
+
+    print(code)
+
+    is_code = PromoCode.query.filter_by(code=code).first()
+
+    print(is_code)
+
+    status = True if is_code else False
+    code_type = None if not is_code else is_code.code_type
+    discount = None if not is_code else is_code.discount
+
+    return jsonify(status=status, type=code_type, discount=discount)

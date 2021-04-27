@@ -150,50 +150,38 @@
           </div>
 
           <div id="EmailButtons" class="collapse my-4" aria-labelledby="headingThree" data-parent="#accordion">
-            <div>
-              <button class="btn btn-outline-dark btn-lg btn-block mb-4" value="toAll" name="emailAll">Email
-                All</button>
-              <button class="btn btn-outline-dark btn-lg btn-block" value="test" name="test">test email</button>
-            </div>
+            <form method="POST">
+              <div class="form-group">
+                <label for="subject">Subject</label>
+                <input id="subject" name="subject" type="text">
+              </div>
+
+              <div class="form-group">
+                <label for="email_content">Content</label>
+                <textarea id="email_content" name="email_content"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="p_id">Product id (for targeted)</label>
+                <input id="p_id" name="product_id" type="text">
+              </div>
+
+              <div class="form-group">
+                <button class="btn btn-outline-dark btn-lg btn-block mb-4" type="submit" value="toAll" name="Submit">
+                  Email All
+                </button>
+                <button class="btn btn-outline-dark btn-lg btn-block mb-4" type="submit" value="targeted" name="Submit">
+                  Targeted Email
+                </button>
+                <button class="btn btn-outline-dark btn-lg btn-block" type="submit" value="test" name="Submit">
+                  Test Email
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
     </div>
-
-    <div id="email_results">Hello</div>
-
-    <script>
-      $(document).ready(function () {
-        $("button[name='emailAll']").on("click", function () {
-          $("#email_results").empty();
-          // console.log($(this))
-          $.getJSON($SCRIPT_ROOT + '/_send_email_to_all', {
-          }, function (data) {
-            // $("#search_results").text(data.result);
-            console.log(data)
-
-            $("<span></span>").text(data).appendTo("#email_results");
-          });
-          return false;
-        });
-      });
-
-      $(document).ready(function () {
-        $("button[name='test']").on("click", function () {
-          $("#email_results").empty();
-          console.log("Clicked")
-          // console.log($(this))
-          $.getJSON($SCRIPT_ROOT + '/_send_email', {
-          }, function (data) {
-            // $("#search_results").text(data.result);
-            console.log(data)
-
-            $("<span></span>").text(data).appendTo("#email_results");
-          });
-          return false;
-        });
-      });
-    </script>
 
     <!-- Products -->
     <div class="product-area section">

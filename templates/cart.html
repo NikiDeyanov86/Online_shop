@@ -126,71 +126,6 @@
 							</td>
 						</tr>
 						{% endfor %}
-
-{#						<tr>#}
-{#							<td class="image" data-title="No"><img src="https://via.placeholder.com/100x100" alt="#">#}
-{#							</td>#}
-{#							<td class="product-des" data-title="Description">#}
-{#								<p class="product-name"><a href="#">Women Dress</a></p>#}
-{#								<p class="product-des">Maboriosam in a tonto nesciung eget distingy magndapibus.</p>#}
-{#							</td>#}
-{#							<td class="price" data-title="Price"><span>$110.00 </span></td>#}
-{#							<td class="qty" data-title="Qty">#}
-{#								<!-- Input Order -->#}
-{#								<div class="input-group">#}
-{#									<div class="button minus">#}
-{#										<button type="button" class="btn btn-primary btn-number" disabled="disabled"#}
-{#											data-type="minus" data-field="quant[2]">#}
-{#											<i class="ti-minus"></i>#}
-{#										</button>#}
-{#									</div>#}
-{#									<input type="text" name="quant[2]" class="input-number" data-min="1" data-max="100"#}
-{#										value="2">#}
-{#									<div class="button plus">#}
-{#										<button type="button" class="btn btn-primary btn-number" data-type="plus"#}
-{#											data-field="quant[2]">#}
-{#											<i class="ti-plus"></i>#}
-{#										</button>#}
-{#									</div>#}
-{#								</div>#}
-{#								<!--/ End Input Order -->#}
-{#							</td>#}
-{#							<td class="total-amount" data-title="Total"><span>$220.88</span></td>#}
-{#							<td class="action" data-title="Remove"><a href="#"><i class="ti-trash remove-icon"></i></a>#}
-{#							</td>#}
-{#						</tr>#}
-{#						<tr>#}
-{#							<td class="image" data-title="No"><img src="https://via.placeholder.com/100x100" alt="#">#}
-{#							</td>#}
-{#							<td class="product-des" data-title="Description">#}
-{#								<p class="product-name"><a href="#">Women Dress</a></p>#}
-{#								<p class="product-des">Maboriosam in a tonto nesciung eget distingy magndapibus.</p>#}
-{#							</td>#}
-{#							<td class="price" data-title="Price"><span>$110.00 </span></td>#}
-{#							<td class="qty" data-title="Qty">#}
-{#								<!-- Input Order -->#}
-{#								<div class="input-group">#}
-{#									<div class="button minus">#}
-{#										<button type="button" class="btn btn-primary btn-number" disabled="disabled"#}
-{#											data-type="minus" data-field="quant[3]">#}
-{#											<i class="ti-minus"></i>#}
-{#										</button>#}
-{#									</div>#}
-{#									<input type="text" name="quant[3]" class="input-number" data-min="1" data-max="100"#}
-{#										value="3">#}
-{#									<div class="button plus">#}
-{#										<button type="button" class="btn btn-primary btn-number" data-type="plus"#}
-{#											data-field="quant[3]">#}
-{#											<i class="ti-plus"></i>#}
-{#										</button>#}
-{#									</div>#}
-{#								</div>#}
-{#								<!--/ End Input Order -->#}
-{#							</td>#}
-{#							<td class="total-amount" data-title="Total"><span>$220.88</span></td>#}
-{#							<td class="action" data-title="Remove"><a href="#"><i class="ti-trash remove-icon"></i></a>#}
-{#							</td>#}
-{#						</tr>#}
 					</tbody>
 				</table>
 				<!--/ End Shopping Summery -->
@@ -207,9 +142,39 @@
 							<div class="left">
 								<div class="coupon">
 									<form action="#" target="_blank">
-										<input name="Coupon" placeholder="Enter Your Coupon">
-										<button class="btn">Apply</button>
+										<input name="Coupon" id="promo_input" placeholder="Enter Your Coupon">
+										<button class="btn" id="promo_btn">Apply</button>
 									</form>
+									<script type=text/javascript>
+										$(function() {
+											$('button#promo_btn').bind('click', function() {
+												var promo_code = $("input#promo_input").val();
+												$.getJSON($SCRIPT_ROOT + '/_add_promo', {
+													code: promo_code
+												}, function(data) {
+													console.log(data);
+													if (data.status) {
+														switch (data.type) {
+															case 'p':
+																$("span#save").text('$' + ((data.discount / 100) * {{ cart_subtotal }}))
+																$("span#total").text('$' + (((100 - data.discount) / 100) * {{ cart_subtotal }}))
+																break;
+															case 'a':
+																$("span#save").text('$' + (data.discount))
+																$("span#total").text('$' + ({{ cart_subtotal }} - data.discount))
+																break;
+															default:
+																break;
+														}
+													} else {
+														$("span#save").text('$0.00')
+														$("span#total").text('$' + ({{ cart_subtotal }}))
+													}
+												});
+												return false;
+											});
+										});
+									</script>
 								</div>
 								<div class="checkbox">
 									<label class="checkbox-inline" for="2"><input name="news" id="2" type="checkbox">
@@ -222,8 +187,8 @@
 								<ul>
 									<li>Cart Subtotal<span>${{ cart_subtotal }}</span></li>
 									<li>Shipping<span>Free</span></li>
-									<li>You Save<span>$20.00</span></li>
-									<li class="last">You Pay<span>$310.00</span></li>
+									<li>You Save<span id="save">$0.00</span></li>
+									<li class="last">You Pay<span id="total">#{{ cart_subtotal }}</span></li>
 								</ul>
 								<div class="button5">
 									<a href="/checkout" class="btn">Checkout</a>  <!-- TODO make buttons active -->
