@@ -374,38 +374,55 @@ def _remove_from_wishlist():
 @app.route('/shop_grid')
 def shop_grid():
     return render_template('shop-grid.html', products=Product.query.all(), db_session=db_session, Photo=Photo,
-                           Product=Product)
+                           Product=Product, Cart=Cart)
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
     if request.method == 'GET':
-        return render_template('checkout.html', db_session=db_session, Cart=Cart, User=User, user_id=current_user.id)
+        return render_template('checkout.html', db_session=db_session, Cart=Cart, User=User, orders = Order.query.filter_by(user_id=current_user.id).all(), Order=Order)
     else:
-        user_id = current_user.id
-        first_name = request.form.get("name")
-        last_name = request.form.get("lastname")
-        email = request.form.get("email")
-        phone_number = request.form.get("phonenumber")
-        country = request.form.get("country_name")
-        state = request.form.get("state-province")
-        address1 = request.form.get("address1")
-        address2 = request.form.get("address2")
-        postal = request.form.get("postal")
-        company = request.form.get("company_name")
+        if request.form['SubmitAddress'] == "submit-address":
+            user_id = current_user.id
+            first_name = first_name = request.form.get("name")
+            last_name = request.form.get("lastname")
+            email = request.form.get("email")
+            phone_number = request.form.get("phone_number")
+            country = request.form.get("country_name")
+            state = request.form.get("state-province")
+            address1 = request.form.get("address1")
+            address2 = request.form.get("address2")
+            postal= request.form.get("postal")
+            company = request.form.get("company_name")
 
-        order = Order(user_id=user_id, first_name=first_name,
+            order = Order(user_id=user_id, first_name=first_name,
                       last_name=last_name, email=email,
                       phone_number=phone_number,
                       country=country, state=state, address1=address1,
                       address2=address2, postal=postal, company=company)
 
-        db_session.add(order)
-        db_session.commit()
+            db_session.add(order)
+            db_session.commit()
 
-        return redirect(url_for('home'))
+            return redirect(url_for('checkout'))
+        else:
+            option = request.form['options']
 
+            order = Order.query.filter_by(id=option).first()
+
+            pprint(order)
+
+            return redirect(url_for('checkout'))
+    
+
+@app.route('/order_confirmation', methods=['POST'])
+@login_required
+def order_confirm():
+    
+    order = Order.query.filter_by(id=request.form['options']).first()
+
+    return render_template('order_confirmation.html', order=order, Order=Order)
 
 @app.route('/contact')
 def contact():
