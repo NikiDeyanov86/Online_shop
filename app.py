@@ -16,6 +16,7 @@ from database import db_session, init_db
 from login import login_manager
 from models import User, Product, Category, Photo, Wishlist, Cart, Order, \
     association_table, UserProduct, RatingProduct
+from pprint import pprint
 
 import recomendations
 from flask_mail import Mail, Message
@@ -252,10 +253,15 @@ def logout():
 @app.route('/cart')
 @login_required
 def cart():
+    cart_subtotal = 0
+    for product in Cart.query.filter_by(user_id=current_user.id):
+        cart_subtotal += product.total
+    print(cart_subtotal)
+
     return render_template(
         'cart.html', cart=Cart.query.filter_by(
             user_id=current_user.id).all(), db_session=db_session,
-        Product=Product, Photo=Photo, Cart=Cart, User=User, user_id=current_user.id)
+        Product=Product, Photo=Photo, Cart=Cart, User=User, user_id=current_user.id, cart_subtotal=cart_subtotal)
 
 
 @app.route('/_add_to_cart')
@@ -266,10 +272,11 @@ def _add_to_cart():
     if cart:
         cart.quantity += 1
     else:
-        cart = Cart(product_id=product_id, user_id=current_user.id)
+        cart = Cart(product_id=product_id, user_id=current_user.id, quantity=1, total=0)
 
     product = Product.query.filter_by(id=product_id).first()
-
+    pprint(cart.__dict__)
+    cart.total = cart.quantity * product.price
 
     user_product = UserProduct.query.filter_by(
         user=current_user, product=product).first()

@@ -200,7 +200,7 @@
 								<div class="shopping-item">
 									<div class="dropdown-cart-header">
                                         {% if 'login_id' in current_user.__dict__ %}
-										    <span>{{ db_session.query(Cart).filter_by(id=user_id).count() }} Items</span>
+										    <span id="total-count">{{ db_session.query(Cart).filter_by(id=user_id).count() }} Items</span>
                                         {% else %}
                                             <span>0 Items</span>
                                         {% endif %}
