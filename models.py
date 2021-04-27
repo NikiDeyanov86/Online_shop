@@ -155,3 +155,14 @@ class UserProduct(Base):
 
     user = relationship(User, backref=backref("products_assoc"))
     product = relationship(Product, backref=backref("users_assoc"))
+
+
+class PromoCode(Base):
+    __tablename__ = "PromoCode"
+
+    id = Column(Integer, primary_key=True)
+    discount = Column(Integer, nullable=False)
+    code = Column(String(37), nullable=False)
+
+    # p(percent) or a(absolute)
+    code_type = Column(String(2), default="p")

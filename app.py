@@ -15,7 +15,7 @@ from werkzeug.utils import secure_filename
 from database import db_session, init_db
 from login import login_manager
 from models import User, Product, Category, Photo, Wishlist, Cart, Order, \
-    association_table, UserProduct
+    association_table, UserProduct, PromoCode
 
 import recomendations
 from flask_mail import Mail, Message
@@ -143,7 +143,7 @@ def admin():
 
         db_session.add(new_category)
         db_session.commit()
-    else:
+    elif request.form['Submit'] == 'Product':
         name = request.form['product_name']
         description = request.form['product_description']
         category = request.form['product_category']
@@ -176,13 +176,23 @@ def admin():
                 db_session.add(photo)
 
         db_session.commit()
+    else:
+        discount = request.form['discount']
+        code = request.form['code']
+        code_type = request.form['code_type']
+
+        promo = PromoCode(discount=discount, code=code, code_type=code_type)
+
+        db_session.add(promo)
+        db_session.commit()
 
     categories = Category.query.all()
     products = Product.query.all()
+    codes = PromoCode.query.all()
 
     return render_template(
-        'admin.html', categories=categories, products=products,
-        db_session=db_session, Product=Product, Photo=Photo)
+        'admin.html', categories=categories, products=products, str=str,
+        db_session=db_session, Product=Product, Photo=Photo, codes=codes)
 
 
 @app.route('/admin/register', methods=['GET', 'POST'])
@@ -247,6 +257,19 @@ def logout():
     logout_user()
 
     return redirect(url_for('home'))
+
+
+@app.route('/_remove_code')
+@admin_login_required
+def remove_code():
+    code_id = request.args.get('code_id', type=int)
+
+    code = PromoCode.query.filter_by(id=code_id).first()
+
+    db_session.delete(code)
+    db_session.commit()
+
+    return jsonify(result="Deleted")
 
 
 @app.route('/cart')
