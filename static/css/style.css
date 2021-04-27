@@ -3158,7 +3158,7 @@ Version:1.0
 	height: 46px;
 	line-height: 18px;
 	font-size: 13px;
-	color: #fff;
+	/*color: #fff;*/
 }
 /*======================================
    End Shopping Cart CSS
@@ -3167,6 +3167,8 @@ Version:1.0
 /*======================================
    Start Checkout Form CSS
 ========================================*/
+
+
 .shop.checkout {
 	padding: 0;
 	background: #fff;

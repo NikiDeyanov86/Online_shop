@@ -6,13 +6,6 @@ from sqlalchemy.sql.schema import Table
 
 DELETE_ALL = "all, delete"
 
-association_table = Table('association', Base.metadata,
-                          Column('user_id', Integer, ForeignKey('User.id')),
-                          Column('product_id', Integer,
-                                 ForeignKey('Product.id')),
-                          Column('status', Integer, default=0)
-                          )
-
 
 class User(Base):
     __tablename__ = "User"
@@ -24,11 +17,11 @@ class User(Base):
 
     wishlist = relationship("Wishlist", back_populates="user",
                             cascade=DELETE_ALL, passive_deletes=True)
-    cart = relationship("Cart", back_populates="user",
-                        cascade=DELETE_ALL, passive_deletes=True)
+    user_cart = relationship("Cart", back_populates="user",
+                             cascade=DELETE_ALL, passive_deletes=True)
 
-    # products = relationship("Product", secondary=association_table)
     products = relationship('Product', secondary='UserProduct')
+    ratings = relationship('Product', secondary='RatingProduct')
 
     # role is 'basic' or 'admin'
     role = Column(String(6), default="basic")
@@ -72,9 +65,6 @@ class Product(Base):
     name = Column(String(80), nullable=False)
     description = Column(String(500), nullable=True)
     price = Column(Float, nullable=False)
-    rating = Column(Float, default=0)
-    # Counts the times the product was rated
-    rated = Column(Integer, default=0)
 
     category_id = Column(Integer, ForeignKey(
         'Category.id', ondelete="CASCADE"))
@@ -90,6 +80,8 @@ class Product(Base):
                             cascade=DELETE_ALL, passive_deletes=True)
 
     users = relationship('User', secondary='UserProduct')
+
+    ratings = relationship('User', secondary='RatingProduct')
 
 
 class Photo(Base):
@@ -124,8 +116,9 @@ class Cart(Base):
     user_id = Column(Integer, ForeignKey('User.id', ondelete="CASCADE"))
     product_id = Column(Integer, ForeignKey('Product.id', ondelete="CASCADE"))
     quantity = Column(Integer, default=1)
+    total = Column(Float, default=0)
 
-    user = relationship("User", back_populates="cart")
+    user = relationship("User", back_populates="user_cart")
     product = relationship("Product", back_populates="cart")
 
 
@@ -166,3 +159,15 @@ class PromoCode(Base):
 
     # p(percent) or a(absolute)
     code_type = Column(String(2), default="p")
+
+
+class RatingProduct(Base):
+    __tablename__ = 'RatingProduct'
+
+    user_id = Column(Integer, ForeignKey('User.id'), primary_key=True)
+    product_id = Column(Integer, ForeignKey('Product.id'), primary_key=True)
+    rating = Column(Integer)
+
+    user = relationship(User, backref=backref("rating_user_assoc"))
+    product = relationship(Product, backref=backref("rating_product_assoc"))
+    rating_comment = Column(String(120), nullable=True)

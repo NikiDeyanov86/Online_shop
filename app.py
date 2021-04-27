@@ -15,7 +15,8 @@ from werkzeug.utils import secure_filename
 from database import db_session, init_db
 from login import login_manager
 from models import User, Product, Category, Photo, Wishlist, Cart, Order, \
-    association_table, UserProduct, PromoCode
+    UserProduct, RatingProduct, PromoCode
+from pprint import pprint
 
 import recomendations
 from flask_mail import Mail, Message
@@ -82,12 +83,16 @@ def shutdown_context(exception=None):
 def home():
     if 'login_id' in current_user.__dict__:
         return render_template('index.html', products=Product.query.all(),
-                               cart=Cart.query.filter_by(user_id=current_user.id).all(),
-                               user_id=current_user.id, db_session=db_session, Photo=Photo, Product=Product, Cart=Cart, User=User)
+                               cart=Cart.query.filter_by(
+                                   user_id=current_user.id).all(),
+                               user_id=current_user.id, db_session=db_session,
+                               Photo=Photo, Product=Product, Cart=Cart,
+                               User=User)
 
     else:
         return render_template('index.html', products=Product.query.all(),
-                               db_session=db_session, Photo=Photo, Product=Product, Cart=Cart, User=User)
+                               db_session=db_session, Photo=Photo,
+                               Product=Product, Cart=Cart, User=User)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -275,35 +280,44 @@ def remove_code():
 @app.route('/cart')
 @login_required
 def cart():
+    cart_subtotal = 0
+    for product in Cart.query.filter_by(user_id=current_user.id):
+        cart_subtotal += product.total
+    print(cart_subtotal)
+
     return render_template(
         'cart.html', cart=Cart.query.filter_by(
             user_id=current_user.id).all(), db_session=db_session,
-        Product=Product, Photo=Photo, Cart=Cart, User=User, user_id=current_user.id)
+        Product=Product, Photo=Photo, Cart=Cart, User=User,
+        cart_subtotal=cart_subtotal)
 
 
 @app.route('/_add_to_cart')
 @login_required
 def _add_to_cart():
     product_id = request.args.get('product_id', type=int)
-
-    cart = Cart(product_id=product_id, user_id=current_user.id)
+    cart = Cart.query.filter_by(user_id=current_user.id,
+                                product_id=product_id).first()
+    if cart:
+        cart.quantity += 1
+    else:
+        cart = Cart(product_id=product_id, user_id=current_user.id,
+                    quantity=1, total=0)
 
     product = Product.query.filter_by(id=product_id).first()
+    pprint(cart.__dict__)
+    cart.total = cart.quantity * product.price
 
-    if current_user.login_id is not None:
-        user_product = UserProduct.query.filter_by(
-            user=current_user, product=product).first()
+    user_product = UserProduct.query.filter_by(
+        user=current_user, product=product).first()
 
-        if user_product is None:
-            user_product = UserProduct(
-                user=current_user, product=product, status=2)
-        else:
-            user_product.status = 2
+    if user_product is None:
+        user_product = UserProduct(
+            user=current_user, product=product, status=2)
+    else:
+        user_product.status = 2
 
-        db_session.add(user_product)
-
-        db_session.commit()
-
+    db_session.add(user_product)
     db_session.add(cart)
     db_session.commit()
 
@@ -389,15 +403,17 @@ def _remove_from_wishlist():
 
 @app.route('/shop_grid')
 def shop_grid():
-    return render_template('shop-grid.html', products=Product.query.all(), db_session=db_session, Photo=Photo,
-                           Product=Product)
+    return render_template('shop-grid.html', products=Product.query.all(),
+                           db_session=db_session, Photo=Photo, Product=Product,
+                           Cart=Cart)
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
     if request.method == 'GET':
-        return render_template('checkout.html', db_session=db_session, Cart=Cart, User=User, user_id=current_user.id)
+        return render_template('checkout.html', db_session=db_session,
+                               Cart=Cart, User=User, user_id=current_user.id)
     else:
         user_id = current_user.id
         first_name = request.form.get("name")
@@ -490,6 +506,17 @@ def product_details(product_id):
 
     r = []
 
+    current_product_all_stars = 0
+    current_product_all_people = 0
+
+    # TODO check if this should be like that
+    for row in RatingProduct.query.filter_by(product_id=product_id):
+        current_product_all_stars += row.rating
+        current_product_all_people += 1
+
+    print(current_product_all_stars)
+    print(current_product_all_people)
+
     if 'login_id' in current_user.__dict__:
         user_product = UserProduct.query.filter_by(
             user=current_user, product=product).first()
@@ -529,7 +556,10 @@ def product_details(product_id):
 
     return render_template(
         "product_details.html", product=product, recomendations=r[:5],
-        db_session=db_session, Product=Product, Photo=Photo, Cart=Cart, User=User, user_id=current_user.id)
+        current_product_all_people=current_product_all_people,
+        current_product_all_stars=current_product_all_stars,
+        db_session=db_session, Product=Product, Photo=Photo,
+        Cart=Cart, User=User)
 
 
 @admin_login_required
@@ -560,3 +590,23 @@ def _send_email():
     mail.send(msg)
 
     return jsonify("send to test")
+
+
+@app.route('/product/<int:product_id>/_add_rating', methods=['POST'])
+@login_required
+def _add_rating(product_id):
+    stars = request.form.get("star")
+    rating_comment = request.form.get("rating_comment")
+
+    rating = RatingProduct.query.filter_by(user_id=current_user.id,
+                                           product_id=product_id).first()
+    if not rating:
+        rating = RatingProduct(user_id=current_user.id, product_id=product_id,
+                               rating=stars, rating_comment=rating_comment)
+    else:
+        rating.rating = stars
+        rating.rating_comment = rating_comment
+    db_session.add(rating)
+    db_session.commit()
+
+    return redirect(url_for('product_details', product_id=product_id))
