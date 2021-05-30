@@ -381,7 +381,7 @@ def wishlist():
     return render_template(
         'wishlist.html', wishlist=Wishlist.query.filter_by(
             user_id=current_user.id).all(), db_session=db_session,
-        Product=Product, Photo=Photo, Wishlist=Wishlist)
+        Product=Product, Photo=Photo, Wishlist=Wishlist, Cart=Cart)
 
 
 @app.route('/_add_to_wishlist')
@@ -441,9 +441,59 @@ def _remove_from_wishlist():
 
 @app.route('/shop_grid')
 def shop_grid():
-    return render_template('shop-grid.html', products=Product.query.all(),
+    r = []
+    # Get Recomendations
+    users = User.query.all()
+    products = Product.query.all()
+
+    user_products = {user.id: {product.id: 0 for product in products}
+                        for user in users}
+
+    u_products = UserProduct.query.all()
+
+    for p in u_products:
+        user_products[p.user_id][p.product_id] = p.status
+
+    pprint(user_products)
+
+    r = recomendations.get_recommendations(user_products, current_user.id)
+
+    pprint(r)
+
+    return render_template('shop-grid.html', products=Product.query.all(), categories=Category.query.all(),
+                           db_session=db_session, recomendations=r[:5], Photo=Photo, Product=Product,
+                           Cart=Cart, Category=Category, User=User)
+
+
+@app.route('/shop_list/<int:category_id>')
+def shop_list(category_id):
+    
+    category = Category.query.filter_by(id=category_id).first()
+    products = Product.query.filter_by(category_id=category_id)
+    ''''
+    r = []
+    # Get Recomendations
+    users = User.query.all()
+    products = Product.query.all()
+
+    user_products = {user.id: {product.id: 0 for product in products}
+                        for user in users}
+
+    u_products = UserProduct.query.all()
+
+    for p in u_products:
+        user_products[p.user_id][p.product_id] = p.status
+
+    pprint(user_products)
+
+    r = recomendations.get_recommendations(user_products, current_user.id)
+
+    pprint(r)
+    '''
+
+    return render_template('shop-list.html', products=products, categories=Category.query.all(),
                            db_session=db_session, Photo=Photo, Product=Product,
-                           Cart=Cart)
+                           Cart=Cart, Category=Category, User=User)
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
