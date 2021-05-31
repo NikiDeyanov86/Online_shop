@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, TIMESTAMP
+from sqlalchemy import Column, Integer, String, Float, \
+    ForeignKey, DateTime, TIMESTAMP
 from sqlalchemy.orm import relationship, backref
 from database import Base
 from sqlalchemy.sql.schema import Table

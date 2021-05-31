@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email</title>
+</head>
+<body>
+    Hello, {{ user.email }}!
+    <br>
+    <br>
+    We recommend you our new product {{ product.name }} for only {{ product.price }}. <br>
+    {{ product.description }}
+    <br>
+    <br>
+
+    Shop TUES<br>
+    <a href="mailto:shop_tues@abv.bg">shop_tues@abv.bg</a>
+    <br>
+    <br>
+    <div style="text-align: center;">
+        <a href="http://127.0.0.1:5000/unsubscribe?id=" + {{ hash(user.id) }}>Unsubscribe</a>
+    </div>
+</body>
+</html>

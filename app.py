@@ -23,7 +23,8 @@ from flask_mail import Mail, Message
 from datetime import datetime
 
 from config import SECRET_KEY, EMAIL, PASSWORD
-from utils import validate_file_type, _send_email, _send_email_to_all, _send_targeted_email
+from utils import validate_file_type, _send_email,\
+    _send_email_to_all, _send_targeted_email
 from flask.json import jsonify
 import json
 
@@ -139,6 +140,103 @@ def login():
             return redirect(url_for('home'))
 
 
+def _add_category():
+    name = request.form['category_name']
+    new_category = Category(name=name)
+
+    db_session.add(new_category)
+    db_session.commit()
+
+
+def _add_product():
+    name = request.form['product_name']
+    description = request.form['product_description']
+    category = request.form['product_category']
+    price = request.form['product_price']
+
+    category_id = Category.query.filter_by(name=category).first().id
+
+    new_product = Product(name=name, description=description,
+                          price=price, category_id=category_id)
+
+    db_session.add(new_product)
+    db_session.commit()
+
+    new_product = Product.query.filter_by(
+        name=name, description=description,
+        price=price, category_id=category_id).first()
+
+    if 'product_pic' in request.files and request.files['product_pic']:
+        file = request.files['product_pic']
+        filename = secure_filename(file.filename)
+
+        if validate_file_type(filename, ["jpeg", "jpg", "png"]):
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            print(new_product.id)
+
+            photo = Photo(
+                address=f'/uploads/{filename}', product_id=new_product.id)
+
+            db_session.add(photo)
+
+    db_session.commit()
+
+    return new_product
+
+
+def _add_promo_code():
+    discount = request.form['discount']
+    code = request.form['code']
+    code_type = request.form['code_type']
+
+    promo = PromoCode(discount=discount, code=code, code_type=code_type)
+
+    db_session.add(promo)
+    db_session.commit()
+
+
+def _targeted_email(product_id, subject, email_content):
+    users = User.query.all()
+    products = Product.query.all()
+
+    user_products = {user.id: {product.id: 0 for product in products}
+                     for user in users}
+
+    u_products = UserProduct.query.all()
+
+    for p in u_products:
+        user_products[p.user_id][p.product_id] = p.status
+
+    pprint(user_products)
+
+    products = recomendations.transform_prefs(user_products)
+    r = recomendations.get_recommendations(products, product_id)
+    r = [p for p in r if p[0] > 0]
+    pprint(r)
+
+    users = [User.query.filter_by(id=rec[1]).first() for rec in r]
+
+    pprint(users)
+
+    try:
+        message = {'product': Product.query.filter_by(
+            id=product_id).first(), 'hash': hash}
+        _send_targeted_email(users, mail, Message, jsonify,
+                             subject, message, render_template)
+    except Exception:
+        print("Email not send")
+
+
+def _promote_product(product, subject, email_content):
+    if subject or email_content:
+        if not subject:
+            subject = product.name
+        message = {'product': product, 'hash': hash}
+        _send_email_to_all(User, mail, Message, jsonify,
+                           subject, message, render_template)
+
+
 @app.route('/admin', methods=['GET', 'POST'])
 @admin_login_required
 def admin():
@@ -147,87 +245,32 @@ def admin():
         pass
 
     elif request.form['Submit'] == 'Category':
-        name = request.form['category_name']
-        new_category = Category(name=name)
-
-        db_session.add(new_category)
-        db_session.commit()
+        _add_category()
     elif request.form['Submit'] == 'Product':
-        name = request.form['product_name']
-        description = request.form['product_description']
-        category = request.form['product_category']
-        price = request.form['product_price']
+        product = _add_product()
 
-        category_id = Category.query.filter_by(name=category).first().id
+        subject = request.form['subject']
+        email_content = request.form['email_content']
 
-        new_product = Product(name=name, description=description,
-                              price=price, category_id=category_id)
+        _promote_product(product, subject, email_content)
 
-        db_session.add(new_product)
-        db_session.commit()
-
-        new_product = Product.query.filter_by(
-            name=name, description=description,
-            price=price, category_id=category_id).first()
-
-        if 'product_pic' in request.files and request.files['product_pic']:
-            file = request.files['product_pic']
-            filename = secure_filename(file.filename)
-
-            if validate_file_type(filename, ["jpeg", "jpg", "png"]):
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-                print(new_product.id)
-
-                photo = Photo(
-                    address=f'/uploads/{filename}', product_id=new_product.id)
-
-                db_session.add(photo)
-
-        db_session.commit()
     elif request.form['Submit'] == 'PromoCode':
-        discount = request.form['discount']
-        code = request.form['code']
-        code_type = request.form['code_type']
-
-        promo = PromoCode(discount=discount, code=code, code_type=code_type)
-
-        db_session.add(promo)
-        db_session.commit()
+        _add_promo_code()
     else:
         subject = request.form['subject']
         email_content = request.form['email_content']
 
         if request.form['Submit'] == "toAll":
-            _send_email_to_all(User, mail, Message, jsonify, subject, email_content)
+            _send_email_to_all(
+                User, mail, Message, jsonify,
+                subject, email_content, render_template)
         elif request.form['Submit'] == "targeted":
             product_id = int(request.form['product_id'])
 
-            users = User.query.all()
-            products = Product.query.all()
-
-            user_products = {user.id: {product.id: 0 for product in products}
-                             for user in users}
-
-            u_products = UserProduct.query.all()
-
-            for p in u_products:
-                user_products[p.user_id][p.product_id] = p.status
-
-            pprint(user_products)
-
-            products = recomendations.transform_prefs(user_products)
-            r = recomendations.get_recommendations(products, product_id)
-            r = [p for p in r if p[0] > 0]
-            pprint(r)
-
-            users = [User.query.filter_by(id=rec[1]).first() for rec in r]
-
-            pprint(users)
-
-            _send_targeted_email(users, mail, Message, jsonify, subject, email_content)
+            _targeted_email(product_id, subject, email_content)
         else:
-            _send_email(User, EMAIL, Message, mail, jsonify, subject, email_content)
+            _send_email(User, EMAIL, Message, mail,
+                        jsonify, subject, email_content)
 
     categories = Category.query.all()
     products = Product.query.all()
