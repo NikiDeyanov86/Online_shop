@@ -230,7 +230,7 @@ def _targeted_email(product_id, subject, email_content):
 
 def _promote_product(product):
     subject = product.name
-    message = {'product': product, 'hash': hash}
+    message = {'product': product, 'hash': generate_password_hash}
     _send_email_to_all(User, mail, Message, jsonify,
                        subject, message, render_template)
 
@@ -486,7 +486,7 @@ def shop_grid():
     products = Product.query.all()
 
     user_products = {user.id: {product.id: 0 for product in products}
-                        for user in users}
+                     for user in users}
 
     u_products = UserProduct.query.all()
 
@@ -506,7 +506,7 @@ def shop_grid():
 
 @app.route('/shop_list/<int:category_id>')
 def shop_list(category_id):
-    
+
     category = Category.query.filter_by(id=category_id).first()
     products = Product.query.filter_by(category_id=category_id)
     ''''
@@ -753,3 +753,19 @@ def add_promo():
     discount = None if not is_code else is_code.discount
 
     return jsonify(status=status, type=code_type, discount=discount)
+
+
+@app.route('/unsubscribe/<int:user_id>/<key>', methods=['GET'])
+def _unsubscribe(user_id, key):
+    if check_password_hash(key, str(user_id)):
+        user = User.query.filter_by(id=user_id).first()
+
+        if user and user.subscribed:
+            user.subscribed = 0
+
+            db_session.add(user)
+            db_session.commit()
+
+            return "Successfully unsubscribed!"
+        else:
+            return "Invalid link"
