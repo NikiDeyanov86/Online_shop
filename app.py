@@ -228,13 +228,11 @@ def _targeted_email(product_id, subject, email_content):
         print("Email not send")
 
 
-def _promote_product(product, subject, email_content):
-    if subject or email_content:
-        if not subject:
-            subject = product.name
-        message = {'product': product, 'hash': hash}
-        _send_email_to_all(User, mail, Message, jsonify,
-                           subject, message, render_template)
+def _promote_product(product):
+    subject = product.name
+    message = {'product': product, 'hash': hash}
+    _send_email_to_all(User, mail, Message, jsonify,
+                       subject, message, render_template)
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -249,10 +247,8 @@ def admin():
     elif request.form['Submit'] == 'Product':
         product = _add_product()
 
-        subject = request.form['subject']
-        email_content = request.form['email_content']
-
-        _promote_product(product, subject, email_content)
+        if 'automatic_email' in request.form and request.form['automatic_email']:
+            _promote_product(product)
 
     elif request.form['Submit'] == 'PromoCode':
         _add_promo_code()
