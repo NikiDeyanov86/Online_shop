@@ -71,6 +71,31 @@
 								<!-- Single Widget -->
 								<div class="single-widget recent-post">
 									<h3 class="title">Recommended</h3>
+
+                                    <script>
+                                        $(document).ready(function() {
+                                            {% for rec in recomendations %}
+                                                {% set product = Product.query.filter(Product.id==rec[1]).first() %}
+                                                  // Gets the span width of the filled-ratings span
+                                                  // this will be the same for each rating
+                                                  var star_rating_width = $('.fill-ratings span').width();
+                                                  // Sets the container of the ratings to span width
+                                                  // thus the percentages in mobile will never be wrong
+                                                  $('.star-ratings').width(star_rating_width);
+                                            {% endfor %}
+                                        });
+                                    </script>
+
+                                    <script>
+                                        window.onload = function() {
+                                            {% for rec in recomendations %}
+                                                {% set product = Product.query.filter(Product.id==rec[1]).first() %}
+                                                var rating_percentage = {{ product.rating }};
+                                                document.getElementById('fill-ratings-{{ product.id }}').style.width = rating_percentage + "%";
+                                            {% endfor %}
+                                        };
+                                    </script>
+
 									{% for rec in recomendations %}
                                         {% set product = Product.query.filter(Product.id==rec[1]).first() %}
 									<!-- Single Post -->
@@ -80,39 +105,18 @@
 											onerror=this.src="../static/images/no-image-icon.png"
 											alt="">
 										</div>
+                                        {#-------- star ratings ---------#}
 										<div class="content">
-											<script>
-                                                $(document).ready(function() {
-                                                  // Gets the span width of the filled-ratings span
-                                                  // this will be the same for each rating
-                                                  var star_rating_width = $('.fill-ratings span').width();
-                                                  // Sets the container of the ratings to span width
-                                                  // thus the percentages in mobile will never be wrong
-                                                  $('.star-ratings').width(star_rating_width);
-                                                });
-                                            </script>
-
-                                            <script>
-                                                window.onload = function() {
-                                                    var rating_percentage = {{ RatingProduct.query.filter(product_id==product.id).first().rating }};
-                                                    document.getElementById('fill-ratings1').style.width = rating_percentage + "%";
-                                                    document.getElementById('rating-text-over-stars').innerHTML = Math.round(rating_percentage) ? rating_percentage + "%" + " like this product" : "Be the first to review this product";
-                                                };
-                                            </script>
-
-                                            <div class="form-group">
-                                                <div id="rating-text-over-stars" style="color: #3F3F3F; font-size: 14px;">
-                                                  </div>
-                                                <div class="star-ratings" style="font-size: 16px;">
-                                                  <div class="fill-ratings" id="fill-ratings1">
-                                                    <span>★★★★★</span>
-                                                  </div>
-                                                  <div class="empty-ratings">
-                                                    <span>★★★★★</span>
-                                                  </div>
-                                                </div>
+                                            <div class="star-ratings" style="font-size: 14px !important;">
+                                              <div class="fill-ratings" id="fill-ratings-{{ product.id }}">
+                                                <span>★★★★★</span>
+                                              </div>
+                                              <div class="empty-ratings">
+                                                <span>★★★★★</span>
+                                              </div>
                                             </div>
 										</div>
+                                        {#-------------------------------#}
 									</div>
 									<!-- End Single Post -->
 									{% endfor %}	
@@ -155,110 +159,115 @@
 							</div>
 						</div>
 						<div class="row">
+
+
+                        <script>
+                            $(document).ready(function() {
+                                {% for product in products %}
+                                    // Gets the span width of the filled-ratings span
+                                  // this will be the same for each rating
+                                  var star_rating_width = $('.fill-ratings span').width();
+                                  // Sets the container of the ratings to span width
+                                  // thus the percentages in mobile will never be wrong
+                                    $('.star-ratings').width(star_rating_width);
+                                {% endfor %}
+                            });
+                        </script>
+
+                        <script>
+                            window.onload = function() {
+                                {% for product in products %}
+                                    var rating_percentage = {{ product.rating }};
+                                    document.getElementById('fill-grid-ratings-{{ product.id }}').style.width = rating_percentage + "%";
+                                {% endfor %}
+                            };
+                        </script>
+
+
 							{% for product in products %}
-										<div class="col-xl-3 col-lg-4 col-md-4 col-12">
-											<div class="single-product">
-												<div class="product-img">
-													<a href="/product/{{ product.id }}">
-														<img class="default-img"
-															src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
-															onerror=this.src="../static/images/no-image-icon.png"
-															alt="">
-														<img class="hover-img"
-															src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
-															onerror=this.src="../static/images/no-image-icon.png"
-															alt="">
-													</a>
-													<div class="button-head">
-														<div class="product-action">
-															<a data-toggle="modal" data-target="#exampleModal"
-																title="Quick View" href="#">
-																<em class=" ti-eye"></em>
-																<span>Quick Shop</span>
-															</a>
-															<script type=text/javascript>
-																$(function() {
-																	$('a#wish_{{ product.id }}').bind('click', function() {
-																	$.getJSON($SCRIPT_ROOT + '/_add_to_wishlist', {
-																		product_id: {{ product.id }}
-																	}, function(data) {
-																		$("#result_{{ product.id }}").text(data.result);
-																	});
-																	return false;
-																	});
-																});
-															</script>
-															<a title="Wishlist" id="wish_{{ product.id }}" href="#">
-																<em class=" ti-heart "></em>
-																<span>Add to Wishlist</span>
-															</a>
-															<a title="Compare" href="#">
-																<em class="ti-bar-chart-alt"></em>
-																<span>Add to Compare</span>
-															</a>
-														</div>
-														<div class="product-action-2">
-															<script type=text/javascript>
-																$(function() {
-																	$('a#cart_{{ product.id }}').bind('click', function() {
-																	$.getJSON($SCRIPT_ROOT + '/_add_to_cart', {
-																		product_id: {{ product.id }}
-																	}, function(data) {
-																		$("#result_{{ product.id }}").text(data.result);
-																	});
-																	return false;
-																	});
-																});
-															</script>
-															<a title="Add to cart" href="#"
-																id="cart_{{ product.id }}">Add to
-																cart</a>
-															<span id="result_{{ product.id }}"></span>
-														</div>
-													</div>
-												</div>
-												<div class="product-content">
-													<h3><a href="/product/{{ product.id }}">{{ product.name }}</a>
-													</h3>
-                                                    {#-----------------#}
-                                                    <script>
-                                                        $(document).ready(function() {
-                                                          // Gets the span width of the filled-ratings span
-                                                          // this will be the same for each rating
-                                                          var star_rating_width = $('.fill-ratings span').width();
-                                                          // Sets the container of the ratings to span width
-                                                          // thus the percentages in mobile will never be wrong
-                                                          $('.star-ratings').width(star_rating_width);
+                                <div class="col-xl-3 col-lg-4 col-md-4 col-12">
+                                    <div class="single-product">
+                                        <div class="product-img">
+                                            <a href="/product/{{ product.id }}">
+                                                <img class="default-img"
+                                                    src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
+                                                    onerror=this.src="../static/images/no-image-icon.png"
+                                                    alt="">
+                                                <img class="hover-img"
+                                                    src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
+                                                    onerror=this.src="../static/images/no-image-icon.png"
+                                                    alt="">
+                                            </a>
+                                            <div class="button-head">
+                                                <div class="product-action">
+                                                    <a data-toggle="modal" data-target="#exampleModal"
+                                                        title="Quick View" href="#">
+                                                        <em class=" ti-eye"></em>
+                                                        <span>Quick Shop</span>
+                                                    </a>
+                                                    <script type=text/javascript>
+                                                        $(function() {
+                                                            $('a#wish_{{ product.id }}').bind('click', function() {
+                                                            $.getJSON($SCRIPT_ROOT + '/_add_to_wishlist', {
+                                                                product_id: {{ product.id }}
+                                                            }, function(data) {
+                                                                $("#result_{{ product.id }}").text(data.result);
+                                                            });
+                                                            return false;
+                                                            });
                                                         });
                                                     </script>
-
-                                                    <script>
-                                                        window.onload = function() {
-                                                            var rating_percentage = {{ product.rating }};
-                                                            document.getElementById('fill-ratings1').style.width = rating_percentage + "%";
-                                                        };
+                                                    <a title="Wishlist" id="wish_{{ product.id }}" href="#">
+                                                        <em class=" ti-heart "></em>
+                                                        <span>Add to Wishlist</span>
+                                                    </a>
+                                                    <a title="Compare" href="#">
+                                                        <em class="ti-bar-chart-alt"></em>
+                                                        <span>Add to Compare</span>
+                                                    </a>
+                                                </div>
+                                                <div class="product-action-2">
+                                                    <script type=text/javascript>
+                                                        $(function() {
+                                                            $('a#cart_{{ product.id }}').bind('click', function() {
+                                                            $.getJSON($SCRIPT_ROOT + '/_add_to_cart', {
+                                                                product_id: {{ product.id }}
+                                                            }, function(data) {
+                                                                $("#result_{{ product.id }}").text(data.result);
+                                                            });
+                                                            return false;
+                                                            });
+                                                        });
                                                     </script>
+                                                    <a title="Add to cart" href="#"
+                                                        id="cart_{{ product.id }}">Add to
+                                                        cart</a>
+                                                    <span id="result_{{ product.id }}"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="product-content">
+                                            <h3><a href="/product/{{ product.id }}">{{ product.name }}</a>
+                                            </h3>
 
+                                            {#--------- star ratings --------#}
+                                            <div class="star-ratings" style="font-size: 14px !important;">
+                                              <div class="fill-ratings" id="fill-grid-ratings-{{ product.id }}">
+                                                <span>★★★★★</span>
+                                              </div>
+                                              <div class="empty-ratings">
+                                                <span>★★★★★</span>
+                                              </div>
+                                            </div>
+                                           {#--------------------------------#}
 
-                                                    <div class="star-ratings">
-                                                      <div class="fill-ratings" id="fill-ratings1">
-                                                        <span>★★★★★</span>
-                                                      </div>
-                                                      <div class="empty-ratings">
-                                                        <span>★★★★★</span>
-                                                      </div>
-                                                    </div>
-
-                                                   {#-----------------#}
-
-													<div class="product-price">
-														<span>{{ product.price }} лв</span>
-													</div>
-												</div>
-											</div>
-										</div>
-
-										{% endfor %}	
+                                            <div class="product-price">
+                                                <span>{{ product.price }} лв</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
 						</div>
 					</div>
 				</div>
