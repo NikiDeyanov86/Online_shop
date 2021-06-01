@@ -85,9 +85,9 @@
 
                                 <select>
                                     <option selected="selected">All Category</option>
-                                    <option>watch</option>
-                                    <option>mobile</option>
-                                    <option>kid’s item</option>
+                                    {% for category in categories %}
+										<option>{{category.name}}</option>
+                                    {% endfor %}
                                 </select>
                                 <form>
                                     <script type=text/javascript>
@@ -413,7 +413,7 @@
 							<!-- Tab Nav -->
 							<ul class="nav nav-tabs" id="myTab" role="tablist">
 								{% for category in categories %}
-									<li class="nav-item"><a class="nav-link active" data-toggle="tab" href="/shop_list/{{category.id}}"
+									<li class="nav-item"><a href="/shop_list/{{category.id}}" class="nav-link active" 
 										role="tab">{{category.name}}</a></li>
 								{% endfor %}
 								

@@ -564,8 +564,8 @@ def shop_list(category_id):
 def checkout():
     if request.method == 'GET':
         return render_template('checkout.html', db_session=db_session, User=User,
-                               cart=Cart.query.filter_by(user_id=current_user.id).first(),
-                               orders=Order.query.filter_by(user_id=current_user.id).all(), Order=Order, Cart=Cart)
+                               cart=Cart.query.filter_by(user_id=current_user.id).all(),
+                               orders=Order.query.filter_by(user_id=current_user.id).all(), Order=Order, Cart=Cart, Photo=Photo, Product=Product)
     else:
         if request.form['SubmitAddress'] == "submit-address":
             user_id = current_user.id
