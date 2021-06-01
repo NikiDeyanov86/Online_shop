@@ -671,9 +671,7 @@ def product_details(product_id):
 
     r = []
 
-    # rating_percentage = get_rating_product(product_id)
     # TODO rating
-    rating_percentage = Product.query.filter_by(id=product_id).first().rating
 
     if 'login_id' in current_user.__dict__:
         user_product = UserProduct.query.filter_by(
@@ -714,7 +712,6 @@ def product_details(product_id):
 
     return render_template(
         "product_details.html", product=product, recomendations=r[:5],
-        rating_percentage=rating_percentage,
         db_session=db_session, Product=Product, Photo=Photo,
         Cart=Cart, User=User)
 
@@ -736,9 +733,9 @@ def _add_rating(product_id):
 
     db_session.add(rating)
     db_session.commit()
-    product.rating = get_rating_product(product_id)
+    product.rating = get_rating_product(product_id)  # TODO this is correct, don't remove
+    db_session.add(product)
     db_session.commit()
-    # TODO do i need to add when changing
 
     return redirect(url_for('product_details', product_id=product_id))
 

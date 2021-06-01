@@ -117,7 +117,7 @@
 
             <script>
                 window.onload = function() {
-                    var rating_percentage = {{ rating_percentage }};
+                    var rating_percentage = {{ product.rating }};
                     document.getElementById('fill-ratings1').style.width = rating_percentage + "%";
                     document.getElementById('rating-text-over-stars').innerHTML = Math.round(rating_percentage) ? rating_percentage + "%" + " like this product" : "Be the first to review this product";
                 };
