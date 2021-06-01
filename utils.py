@@ -29,7 +29,6 @@ def _send_email_to_all(User, mail, Message, jsonify, subject, message, email_typ
 def _send_email(User, EMAIL, Message, mail, jsonify, subject, email_content):
     user = User.query.filter_by(email=EMAIL).first()
     message['user'] = user
-    message['str'] = str
 
     msg = Message(subject, recipients=[user.email])
     msg.body = email_content
@@ -42,8 +41,6 @@ def _send_targeted_email(users, mail, Message, jsonify, subject, message, email_
     with mail.connect() as conn:
         for user in users:
             message['user'] = user
-            message['subscribe_url'] = "http://127.0.0.1:5000/unsubscribe/" + \
-                str(user.id) + "/" + str(message['hash'](str(user.id)))
             msg = Message(recipients=[user.email],
                           html=render_template(email_type, **message),
                           subject=subject)

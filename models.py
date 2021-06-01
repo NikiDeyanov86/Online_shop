@@ -16,8 +16,6 @@ class User(Base):
     password = Column(String(80), nullable=False)
     login_id = Column(String(36), nullable=True)
 
-    subscribed = Column(Integer, default=1)
-
     wishlist = relationship("Wishlist", back_populates="user",
                             cascade=DELETE_ALL, passive_deletes=True)
     user_cart = relationship("Cart", back_populates="user",
@@ -68,6 +66,7 @@ class Product(Base):
     name = Column(String(80), nullable=False)
     description = Column(String(500), nullable=True)
     price = Column(Float, nullable=False)
+    rating = Column(Float, nullable=True, default=0)
 
     category_id = Column(Integer, ForeignKey(
         'Category.id', ondelete="CASCADE"))
@@ -118,8 +117,9 @@ class Cart(Base):
 
     user_id = Column(Integer, ForeignKey('User.id', ondelete="CASCADE"))
     product_id = Column(Integer, ForeignKey('Product.id', ondelete="CASCADE"))
-    quantity = Column(Integer, default=1)
-    total = Column(Float, default=0)
+    product_quantity = Column(Integer, default=1)
+    product_total = Column(Float, default=0)
+    subtotal = Column(Float, default=0)
 
     user = relationship("User", back_populates="user_cart")
     product = relationship("Product", back_populates="cart")
