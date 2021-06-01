@@ -105,12 +105,12 @@ def home():
                                cart=Cart.query.filter_by(
                                    user_id=current_user.id).all(),
                                db_session=db_session,
-                               Photo=Photo, Product=Product, Cart=Cart, User=User)
+                               Photo=Photo, Product=Product, Cart=Cart, User=User, categories=Category.query.all(), Category=Category)
 
     else:
         return render_template('index.html', products=Product.query.all(),
                                db_session=db_session, Photo=Photo,
-                               Product=Product, Cart=Cart, User=User)
+                               Product=Product, Cart=Cart, User=User, categories=Category.query.all(), Category=Category)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -565,7 +565,7 @@ def checkout():
     if request.method == 'GET':
         return render_template('checkout.html', db_session=db_session, User=User,
                                cart=Cart.query.filter_by(user_id=current_user.id).first(),
-                               orders=Order.query.filter_by(user_id=current_user.id).all(), Order=Order)
+                               orders=Order.query.filter_by(user_id=current_user.id).all(), Order=Order, Cart=Cart)
     else:
         if request.form['SubmitAddress'] == "submit-address":
             user_id = current_user.id
