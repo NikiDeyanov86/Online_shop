@@ -1,0 +1,46 @@
+.article-anecdote {
+    margin: 50px 0 0;
+    border: 9px solid #ffdaad;
+    padding: 0 15px 15px;
+    width: 300px;
+    font-family: Roboto;
+    font-size: 16px;
+    line-height: 22px;
+    background-color: #fff;
+    box-sizing: border-box;
+    white-space: normal;
+    float: right;
+}
+
+.article-anecdote h2 {
+    position: relative;
+    z-index: 100;
+    top: -20px;
+    left: -8px;
+    padding: 0 15px;
+    color: #f8941c;
+    font-size: 26px;
+    font-weight: 400;
+    background: #fff;
+    display: inline-block;
+    margin: 0 10px 0 0;
+}
+
+.article-anecdote h2, .block-story .story-slide h2, .block-story .story-slides span, .block-story h2 {
+    font-family: Gabriela;
+}
+
+h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+/*@media only screen and (max-width: 1023px) and (min-width: 768px)*/
+.article-big>article .article-anecdote, .article-normal>article .article-anecdote {
+    width: 300px;
+    margin: 0 0 0 26px;
+    float: right;
+    display: inline-block;
+    white-space: normal;
+    vertical-align: bottom;
+}

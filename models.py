@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, Float, \
 from sqlalchemy.orm import relationship, backref
 from database import Base
 from sqlalchemy.sql.schema import Table
-
+from datetime import datetime
 
 DELETE_ALL = "all, delete"
 
@@ -175,3 +175,4 @@ class RatingProduct(Base):
     user = relationship(User, backref=backref("rating_user_assoc"))
     product = relationship(Product, backref=backref("rating_product_assoc"))
     rating_comment = Column(String(120), nullable=True)
+    rating_date = Column(DateTime, nullable=False, default=datetime.now())

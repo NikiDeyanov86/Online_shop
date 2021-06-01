@@ -338,8 +338,8 @@ def admin_login():
 
             return redirect(url_for('admin'))
         else:
-            # Invalid
-            pass
+            error = 'Invalid credentials'
+            return render_template("admin_login.html", error=error)
 
 
 @app.route('/admin/product/<int:product_id>')
