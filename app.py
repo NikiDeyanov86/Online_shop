@@ -23,13 +23,12 @@ from flask_mail import Mail, Message
 from datetime import datetime
 
 from config import SECRET_KEY, EMAIL, PASSWORD
-from utils import validate_file_type, _send_email,\
+from utils import validate_file_type, _send_email, \
     _send_email_to_all, _send_targeted_email
 from flask.json import jsonify
 import json
 
 from pprint import pprint
-
 
 app = Flask(__name__)
 
@@ -49,7 +48,6 @@ app.config.from_pyfile('email_config.cfg')
 
 mail = Mail(app)
 
-
 ADMIN = User.query.filter_by(email=EMAIL, role="admin").first()
 if not ADMIN:
     ADMIN = User(email=EMAIL, password=PASSWORD, role="admin")
@@ -60,6 +58,21 @@ if not ADMIN:
     print("Super admin created")
 else:
     print("Super admin already exists")
+
+
+def get_rating_product(product_id):
+    current_product_all_stars = 0
+    current_product_all_people = 0
+    rating_percentage = 0
+    for row in RatingProduct.query.filter_by(product_id=product_id):
+        current_product_all_stars += row.rating
+        current_product_all_people += 1
+
+    if current_product_all_stars and current_product_all_people:
+        rating_percentage = current_product_all_stars / 5
+        rating_percentage = rating_percentage * 100 / current_product_all_people
+
+    return rating_percentage
 
 
 def admin_login_required(func):
@@ -83,16 +96,11 @@ def shutdown_context(exception=None):
 @app.route('/')
 def home():
     if 'login_id' in current_user.__dict__:
-        cart_subtotal = 0
-        for product in Cart.query.filter_by(user_id=current_user.id):
-            cart_subtotal += product.total
-
         return render_template('index.html', products=Product.query.all(),
                                cart=Cart.query.filter_by(
                                    user_id=current_user.id).all(),
-                               user_id=current_user.id, db_session=db_session,
-                               Photo=Photo, Product=Product, Cart=Cart,
-                               User=User, cart_subtotal=cart_subtotal)
+                               db_session=db_session,
+                               Photo=Photo, Product=Product, Cart=Cart, User=User)
 
     else:
         return render_template('index.html', products=Product.query.all(),
@@ -361,16 +369,10 @@ def remove_code():
 @app.route('/cart')
 @login_required
 def cart():
-    cart_subtotal = 0
-    for product in Cart.query.filter_by(user_id=current_user.id):
-        cart_subtotal += product.total
-    print(cart_subtotal)
-
-    return render_template(
-        'cart.html', cart=Cart.query.filter_by(
-            user_id=current_user.id).all(), db_session=db_session,
-        Product=Product, Photo=Photo, Cart=Cart, User=User,
-        cart_subtotal=cart_subtotal)
+    return render_template('cart.html',
+                           cart=Cart.query.filter_by(user_id=current_user.id).all(),
+                           db_session=db_session,
+                           Product=Product, Photo=Photo, Cart=Cart, User=User)
 
 
 @app.route('/_add_to_cart')
@@ -380,15 +382,15 @@ def _add_to_cart():
     cart = Cart.query.filter_by(user_id=current_user.id,
                                 product_id=product_id).first()
     if cart:
-        cart.quantity += 1
+        cart.product_quantity += 1
     else:
         cart = Cart(product_id=product_id, user_id=current_user.id,
-                    quantity=1, total=0)
+                    product_quantity=1, product_total=0, subtotal=0)
 
     product = Product.query.filter_by(id=product_id).first()
     pprint(cart.__dict__)
-    cart.total = cart.quantity * product.price
-
+    cart.product_total = cart.product_quantity * product.price
+    cart.subtotal += cart.product_total
     user_product = UserProduct.query.filter_by(
         user=current_user, product=product).first()
 
@@ -413,6 +415,7 @@ def _remove_from_cart():
     cart = Cart.query.filter_by(
         product_id=product_id, user_id=current_user.id).first()
 
+    cart.subtotal -= cart.product_total
     db_session.delete(cart)
     db_session.commit()
 
@@ -484,33 +487,41 @@ def _remove_from_wishlist():
 
 @app.route('/shop_grid')
 def shop_grid():
-    r = []
-    # Get Recomendations
-    users = User.query.all()
-    products = Product.query.all()
+    if 'login_id' in current_user.__dict__:
+        r = []
+        # Get Recomendations
+        users = User.query.all()
+        products = Product.query.all()
 
-    user_products = {user.id: {product.id: 0 for product in products}
-                        for user in users}
+        user_products = {user.id: {product.id: 0 for product in products}
+                         for user in users}
 
-    u_products = UserProduct.query.all()
+        u_products = UserProduct.query.all()
 
-    for p in u_products:
-        user_products[p.user_id][p.product_id] = p.status
+        for p in u_products:
+            user_products[p.user_id][p.product_id] = p.status
 
-    pprint(user_products)
+        pprint(user_products)
 
-    r = recomendations.get_recommendations(user_products, current_user.id)
+        r = recomendations.get_recommendations(user_products, current_user.id)
 
-    pprint(r)
+        pprint(r)
+        # TODO rating
+        return render_template('shop-grid.html', products=Product.query.all(), categories=Category.query.all(),
+                               db_session=db_session, recomendations=r[:5], Photo=Photo, Product=Product,
+                               cart=Cart.query.filter_by(user_id=current_user.id).all(),
+                               Cart=Cart, Category=Category, User=User,
+                               RatingProduct=RatingProduct)
 
-    return render_template('shop-grid.html', products=Product.query.all(), categories=Category.query.all(),
-                           db_session=db_session, recomendations=r[:5], Photo=Photo, Product=Product,
-                           Cart=Cart, Category=Category, User=User)
+    else:
+        return render_template('shop-grid.html', products=Product.query.all(),
+                               db_session=db_session, Photo=Photo,
+                               Product=Product, Cart=Cart, User=User, Category=Category,
+                               categories=Category.query.all())
 
 
 @app.route('/shop_list/<int:category_id>')
 def shop_list(category_id):
-    
     category = Category.query.filter_by(id=category_id).first()
     products = Product.query.filter_by(category_id=category_id)
     ''''
@@ -542,11 +553,9 @@ def shop_list(category_id):
 @app.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
-    cart_subtotal = 0
-    for product in Cart.query.filter_by(user_id=current_user.id):
-        cart_subtotal += product.total
     if request.method == 'GET':
-        return render_template('checkout.html', db_session=db_session, Cart=Cart, User=User, cart_subtotal=cart_subtotal,
+        return render_template('checkout.html', db_session=db_session, User=User,
+                               cart=Cart.query.filter_by(user_id=current_user.id).first(),
                                orders=Order.query.filter_by(user_id=current_user.id).all(), Order=Order)
     else:
         if request.form['SubmitAddress'] == "submit-address":
@@ -588,14 +597,11 @@ def checkout():
 @app.route('/order_confirmation', methods=['POST'])
 @login_required
 def order_confirm():
-    cart_subtotal = 0
-    for product in Cart.query.filter_by(user_id=current_user.id):
-        cart_subtotal += product.total
-    print(cart_subtotal)
     order = Order.query.filter_by(id=request.form['options']).first()
 
-    return render_template('order_confirmation.html', order=order, Order=Order, db_session=db_session, cart=Cart.query.filter_by(
-        user_id=current_user.id).all(), Cart=Cart, Photo=Photo, Product=Product, cart_subtotal=cart_subtotal)
+    return render_template('order_confirmation.html', order=order, Order=Order, db_session=db_session,
+                           cart=Cart.query.filter_by(
+                               user_id=current_user.id).all(), Cart=Cart, Photo=Photo, Product=Product)
 
 
 @app.route('/contact')
@@ -665,16 +671,9 @@ def product_details(product_id):
 
     r = []
 
-    current_product_all_stars = 0
-    current_product_all_people = 0
-
-    # TODO check if this should be like that
-    for row in RatingProduct.query.filter_by(product_id=product_id):
-        current_product_all_stars += row.rating
-        current_product_all_people += 1
-
-    print(current_product_all_stars)
-    print(current_product_all_people)
+    # rating_percentage = get_rating_product(product_id)
+    # TODO rating
+    rating_percentage = Product.query.filter_by(id=product_id).first().rating
 
     if 'login_id' in current_user.__dict__:
         user_product = UserProduct.query.filter_by(
@@ -715,8 +714,7 @@ def product_details(product_id):
 
     return render_template(
         "product_details.html", product=product, recomendations=r[:5],
-        current_product_all_people=current_product_all_people,
-        current_product_all_stars=current_product_all_stars,
+        rating_percentage=rating_percentage,
         db_session=db_session, Product=Product, Photo=Photo,
         Cart=Cart, User=User)
 
@@ -726,7 +724,7 @@ def product_details(product_id):
 def _add_rating(product_id):
     stars = request.form.get("star")
     rating_comment = request.form.get("rating_comment")
-
+    product = Product.query.filter_by(id=product_id).first()
     rating = RatingProduct.query.filter_by(user_id=current_user.id,
                                            product_id=product_id).first()
     if not rating:
@@ -735,8 +733,12 @@ def _add_rating(product_id):
     else:
         rating.rating = stars
         rating.rating_comment = rating_comment
+
     db_session.add(rating)
     db_session.commit()
+    product.rating = get_rating_product(product_id)
+    db_session.commit()
+    # TODO do i need to add when changing
 
     return redirect(url_for('product_details', product_id=product_id))
 

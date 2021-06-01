@@ -68,6 +68,7 @@
 								<div class="single-widget recent-post">
 									<h3 class="title">Recommended</h3>
 									{% for rec in recomendations %}
+                                        {% set product = Product.query.filter(Product.id==rec[1]).first() %}
 									<!-- Single Post -->
 									<div class="single-post first">
 										<div class="image">
@@ -76,15 +77,37 @@
 											alt="">
 										</div>
 										<div class="content">
-											<h5><a href="/product/{{ rec[1] }}">{{ Product.query.filter_by(id=rec[1]).first().name }}</a></h5>
-											<p class="price">{{ Product.query.filter_by(id=rec[1]).first().price }} лв</p>
-											<ul class="reviews">
-												<li class="yellow"><i class="ti-star"></i></li>
-												<li class="yellow"><i class="ti-star"></i></li>
-												<li class="yellow"><i class="ti-star"></i></li>
-												<li><i class="ti-star"></i></li>
-												<li><i class="ti-star"></i></li>
-											</ul>
+											<script>
+                                                $(document).ready(function() {
+                                                  // Gets the span width of the filled-ratings span
+                                                  // this will be the same for each rating
+                                                  var star_rating_width = $('.fill-ratings span').width();
+                                                  // Sets the container of the ratings to span width
+                                                  // thus the percentages in mobile will never be wrong
+                                                  $('.star-ratings').width(star_rating_width);
+                                                });
+                                            </script>
+
+                                            <script>
+                                                window.onload = function() {
+                                                    var rating_percentage = {{ RatingProduct.query.filter(product_id==product.id).first().rating }};
+                                                    document.getElementById('fill-ratings1').style.width = rating_percentage + "%";
+                                                    document.getElementById('rating-text-over-stars').innerHTML = Math.round(rating_percentage) ? rating_percentage + "%" + " like this product" : "Be the first to review this product";
+                                                };
+                                            </script>
+
+                                            <div class="form-group">
+                                                <div id="rating-text-over-stars" style="color: #3F3F3F; font-size: 14px;">
+                                                  </div>
+                                                <div class="star-ratings">
+                                                  <div class="fill-ratings" id="fill-ratings1">
+                                                    <span>★★★★★</span>
+                                                  </div>
+                                                  <div class="empty-ratings">
+                                                    <span>★★★★★</span>
+                                                  </div>
+                                                </div>
+                                            </div>
 										</div>
 									</div>
 									<!-- End Single Post -->
@@ -193,6 +216,39 @@
 												<div class="product-content">
 													<h3><a href="/product/{{ product.id }}">{{ product.name }}</a>
 													</h3>
+                                                    {#-----------------#}
+                                                    <script>
+                                                        $(document).ready(function() {
+                                                          // Gets the span width of the filled-ratings span
+                                                          // this will be the same for each rating
+                                                          var star_rating_width = $('.fill-ratings span').width();
+                                                          // Sets the container of the ratings to span width
+                                                          // thus the percentages in mobile will never be wrong
+                                                          $('.star-ratings').width(star_rating_width);
+                                                        });
+                                                    </script>
+
+                                                    <script>
+                                                        window.onload = function() {
+                                                            var rating_percentage = {{ RatingProduct.query.filter(product_id==product.id).first().rating }};
+                                                            document.getElementById('fill-ratings1').style.width = rating_percentage + "%";
+                                                            document.getElementById('rating-text-over-stars').innerHTML = Math.round(rating_percentage) ? rating_percentage + "%" + " like this product" : "Be the first to review this product";
+                                                        };
+                                                    </script>
+
+                                                    <div id="rating-text-over-stars" style="color: #3F3F3F; font-size: 14px;">
+                                                      </div>
+                                                    <div class="star-ratings">
+                                                      <div class="fill-ratings" id="fill-ratings1">
+                                                        <span>★★★★★</span>
+                                                      </div>
+                                                      <div class="empty-ratings">
+                                                        <span>★★★★★</span>
+                                                      </div>
+                                                    </div>
+
+                                                   {#-----------------#}
+
 													<div class="product-price">
 														<span>{{ product.price }} лв</span>
 													</div>

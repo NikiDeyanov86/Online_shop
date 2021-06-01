@@ -191,7 +191,7 @@
 								<a href="/cart" class="single-icon">
 									<em class="ti-bag"></em>
                                     {% if 'login_id' in current_user.__dict__ %}
-									    <span class="total-count" id="total-count">{{ db_session.query(Cart).filter_by(id=user_id).count() }}</span>
+									    <span class="total-count" id="total-count">{{ db_session.query(Cart).filter_by(id=current_user.id).count() }}</span>
                                     {% else %}
                                         <span class="total-count">0</span>
                                     {% endif %}
@@ -200,7 +200,7 @@
 								<div class="shopping-item">
 									<div class="dropdown-cart-header">
                                         {% if 'login_id' in current_user.__dict__ %}
-										    <span id="total-count">{{ db_session.query(Cart).filter_by(id=user_id).count() }} Items</span>
+										    <span id="total-count">{{ db_session.query(Cart).filter_by(id=current_user.id).count() }} Items</span>
                                         {% else %}
                                             <span>0 Items</span>
                                         {% endif %}
@@ -224,7 +224,7 @@
 										<div class="total">
 											<span>Total</span>
                                             {% if 'login_id' in current_user.__dict__ %}
-											    <span class="total-amount">${{ cart_subtotal }}</span>
+											    <span class="total-amount">${{ cart.subtotal }}</span>
                                             {% else %}
                                                 <span class="total-amount">$0.00</span>
                                             {% endif %}
