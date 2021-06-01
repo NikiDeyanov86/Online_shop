@@ -50,6 +50,10 @@ app.config.from_pyfile('email_config.cfg')
 mail = Mail(app)
 
 
+PRODUCT_EMAIL = "email_new_product.html"
+PROMO_EMAIL = "email_promocode.html"
+
+
 ADMIN = User.query.filter_by(email=EMAIL, role="admin").first()
 if not ADMIN:
     ADMIN = User(email=EMAIL, password=PASSWORD, role="admin")
@@ -190,6 +194,15 @@ def _add_promo_code():
     code = request.form['code']
     code_type = request.form['code_type']
 
+    auto_email_promo = 'automatic_email_promo'
+    if auto_email_promo in request.form and request.form[auto_email_promo]:
+        subject = "Discount"
+        message = {'code': code, 'discount': discount,
+                   'code_type': "лв." if code_type == 'a' else "%",
+                   'hash': generate_password_hash}
+        _send_email_to_all(User, mail, Message, jsonify,
+                           subject, message, PROMO_EMAIL)
+
     promo = PromoCode(discount=discount, code=code, code_type=code_type)
 
     db_session.add(promo)
@@ -223,7 +236,7 @@ def _targeted_email(product_id, subject, email_content):
         message = {'product': Product.query.filter_by(
             id=product_id).first(), 'hash': hash}
         _send_targeted_email(users, mail, Message, jsonify,
-                             subject, message, render_template)
+                             subject, message, PRODUCT_EMAIL)
     except Exception:
         print("Email not send")
 
@@ -232,7 +245,7 @@ def _promote_product(product):
     subject = product.name
     message = {'product': product, 'hash': generate_password_hash}
     _send_email_to_all(User, mail, Message, jsonify,
-                       subject, message, render_template)
+                       subject, message, PRODUCT_EMAIL)
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -249,7 +262,6 @@ def admin():
 
         if 'automatic_email' in request.form and request.form['automatic_email']:
             _promote_product(product)
-
     elif request.form['Submit'] == 'PromoCode':
         _add_promo_code()
     else:
