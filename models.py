@@ -54,9 +54,11 @@ class Category(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(45), nullable=False)
+    address = Column(String(80), nullable=False)
 
     product = relationship("Product", back_populates="category",
                            cascade=DELETE_ALL, passive_deletes=True)
+    
 
 
 class Product(Base):
@@ -95,6 +97,8 @@ class Photo(Base):
     product_id = Column(Integer, ForeignKey(
         'Product.id', ondelete="CASCADE"))
     product = relationship("Product", back_populates="photo")
+
+    
 
 
 class Wishlist(Base):

@@ -100,6 +100,7 @@ def shutdown_context(exception=None):
 
 @app.route('/')
 def home():
+    
     if 'login_id' in current_user.__dict__:
         return render_template('index.html', products=Product.query.all(),
                                cart=Cart.query.filter_by(
@@ -155,9 +156,18 @@ def login():
 
 def _add_category():
     name = request.form['category_name']
-    new_category = Category(name=name)
+    
+    if 'category_pic' in request.files and request.files['category_pic']:
+        file = request.files['category_pic']
+        filename = secure_filename(file.filename)
+        print(filename)
 
-    db_session.add(new_category)
+        if validate_file_type(filename, ["jpeg", "jpg", "png"]):
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            new_category = Category(name=name, address=f'/uploads/{filename}')
+            
+            db_session.add(new_category)
+    
     db_session.commit()
 
 
