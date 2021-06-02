@@ -294,8 +294,8 @@
 										<div class="nav-inner">
 											<ul class="nav main-menu menu navbar-nav">
 												<li class="active"><a href="/">Home</a></li>
-												<li><a href="#">Product</a></li>
-												<li><a href="#">Service</a></li>
+												<li><a href="/shop_grid">Products</a></li>
+												
 												<li><a href="/shop_grid">Shop<i class="ti-angle-down"></i><span
 															class="new">New</span></a>
 													<ul class="dropdown">
@@ -304,12 +304,8 @@
 														<li><a href="/checkout">Checkout</a></li>
 													</ul>
 												</li>
-												<li><a href="#">Pages</a></li>
-												<li><a href="#">Blog<i class="ti-angle-down"></i></a>
-													<ul class="dropdown">
-														<li><a href="/blog_single_sidebar">Blog Single Sidebar</a></li>
-													</ul>
-												</li>
+												<li><a href="#">About us</a></li>
+												
 												<li><a href="/contact">Contact Us</a></li>
 											</ul>
 										</div>
@@ -343,10 +339,9 @@
 							<div class="row">
 								<div class="col-lg-7 col-12">
 									<div class="hero-text">
-										<h1><span>UP TO 50% OFF </span>Everything you need - <br> For everyone.</h1>
+										<h1><span>UP TO 50% OFF </span>Every drink you need - <br> For everyone.</h1>
 
-										<p>bla bla bla bla bla bla bla bla bla <br> dapibus disting tloctio in the find
-											it pereri <br> odiy maboriosm.</p>
+										<p>Welcome to SHOP++!<br> Here you will find the finest selection <br> of alchohol and party drinks in Bulgaria.</p>
 										<div class="button">
 											<a href="/shop_grid" class="btn">Shop Now!</a>
 										</div>
@@ -366,7 +361,7 @@
 	<section class="small-banner section">
 		<div class="container-fluid">
 			<div class="row">
-				{% for category in categories %}
+				{% for category in categories[:3] %}
 				<!-- Single Banner  -->
 				<div class="col-lg-4 col-md-6 col-12">
 					<div class="single-banner">
@@ -2008,30 +2003,20 @@
 	<section class="midium-banner">
 		<div class="container">
 			<div class="row">
+				{% for promo in promos[:2] %}
 				<!-- Single Banner  -->
 				<div class="col-lg-6 col-md-6 col-12">
 					<div class="single-banner">
-						<img src="https://via.placeholder.com/600x370" alt="#">
+						<img src="../static/images/sale.jpg" alt="">
 						<div class="content">
-							<p>Man's Collectons</p>
-							<h3>Man's items <br>Up to<span> 50%</span></h3>
-							<a href="#">Shop Now</a>
+							<p>Alchohol Collectons</p>
+							<h3 style="background-color: transparent;">Up to<span> {{promo.discount}}%</span> with promo code "{{promo.code}}"</h3>
+							<a href="/shop_grid">Shop Now</a>
 						</div>
 					</div>
 				</div>
 				<!-- /End Single Banner  -->
-				<!-- Single Banner  -->
-				<div class="col-lg-6 col-md-6 col-12">
-					<div class="single-banner">
-						<img src="https://via.placeholder.com/600x370" alt="#">
-						<div class="content">
-							<p>shoes women</p>
-							<h3>mid season <br> up to <span>70%</span></h3>
-							<a href="#" class="btn">Shop Now</a>
-						</div>
-					</div>
-				</div>
-				<!-- /End Single Banner  -->
+				{% endfor %}
 			</div>
 		</div>
 	</section>
@@ -2067,7 +2052,7 @@
 					<!-- Start Single Service -->
 					<div class="single-service">
 						<i class="ti-lock"></i>
-						<h4>Sucure Payment</h4>
+						<h4>Secure Payment</h4>
 						<p>100% secure payment</p>
 					</div>
 					<!-- End Single Service -->
@@ -2220,9 +2205,7 @@
 							<div class="logo">
 								<a href="/"><img src="../static/images/Logos/Logo-Shop++8.png" alt="#"></a>
 							</div>
-							<p class="text">Praesent dapibus, neque id cursus ucibus, tortor neque egestas augue, magna
-								eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor,
-								facilisis luctus, metus.</p>
+							
 							<p class="call">Got Question? Call us 24/7<span><a href="tel:123456789">+0123 456
 										789</a></span></p>
 						</div>
@@ -2263,10 +2246,9 @@
 							<!-- Single Widget -->
 							<div class="contact">
 								<ul>
-									<li>NO. 342 - London Oxford Street.</li>
-									<li>012 United Kingdom.</li>
-									<li>info@eshop.com</li>
-									<li>+032 3456 7890</li>
+									<li>Sofia, Bulgaria</li>
+									<li><a href="https://github.com/NikiDeyanov86/Online_shop" style="color: white">Github repository</a></li>
+									
 								</ul>
 							</div>
 							<!-- End Single Widget -->

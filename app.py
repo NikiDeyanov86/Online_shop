@@ -106,12 +106,12 @@ def home():
                                cart=Cart.query.filter_by(
                                    user_id=current_user.id).all(),
                                db_session=db_session,
-                               Photo=Photo, Product=Product, Cart=Cart, User=User, categories=Category.query.all(), Category=Category)
+                               Photo=Photo, Product=Product, Cart=Cart, User=User, categories=Category.query.all(), Category=Category, promos=PromoCode.query.all(), PromoCode=PromoCode)
 
     else:
         return render_template('index.html', products=Product.query.all(),
                                db_session=db_session, Photo=Photo,
-                               Product=Product, Cart=Cart, User=User, categories=Category.query.all(), Category=Category)
+                               Product=Product, Cart=Cart, User=User, categories=Category.query.all(), Category=Category, promos=PromoCode.query.all(), PromoCode=PromoCode)
 
 
 @app.route('/register', methods=['GET', 'POST'])
