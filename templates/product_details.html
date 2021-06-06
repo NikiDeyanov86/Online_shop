@@ -4,10 +4,10 @@
 {% block title %} Product details {% endblock %}
 
 {% block head %}
-    <link rel="stylesheet" href="/static/css/rating.css">
-    <link rel="stylesheet" href="/static/css/comments.css">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/rating.css">
+<link rel="stylesheet" href="/static/css/comments.css">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -28,11 +28,10 @@
                         <a>
                             <img class="default-img"
                                 src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
-                                onerror=this.src="../static/images/no-image-icon.png"
-                                alt="">
-                            <img class="hover-img" src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
-                                onerror=this.src="../static/images/no-image-icon.png"
-                                alt="">
+                                onerror=this.src="../static/images/no-image-icon.png" alt="">
+                            <img class="hover-img"
+                                src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.id).first().address }}"
+                                onerror=this.src="../static/images/no-image-icon.png" alt="">
                         </a>
                         <div class="button-head">
                             <div class="product-action">
@@ -108,34 +107,38 @@
             <br>
 
             <script>
-                $(document).ready(function() {
-                  // Gets the span width of the filled-ratings span
-                  // this will be the same for each rating
-                  var star_rating_width = $('.fill-ratings span').width();
-                  // Sets the container of the ratings to span width
-                  // thus the percentages in mobile will never be wrong
-                  $('.star-ratings').width(star_rating_width);
+                $(document).ready(function () {
+                    // Gets the span width of the filled-ratings span
+                    // this will be the same for each rating
+                    var star_rating_width = $('.fill-ratings span').width();
+                    // Sets the container of the ratings to span width
+                    // thus the percentages in mobile will never be wrong
+                    $('.star-ratings').width(star_rating_width);
                 });
             </script>
 
             <script>
-                window.onload = function() {
+                window.onload = function () {
                     var rating_percentage = {{ product.rating }};
                     document.getElementById('fill-ratings1').style.width = rating_percentage + "%";
                     document.getElementById('rating-text-over-stars').innerHTML = Math.round(rating_percentage) ? rating_percentage + "%" + " like this product" : "Be the first to review this product";
+                    {% for comment in comments %}
+                        var rating_percentage = {{ comment.rating }} * 20;
+                        document.getElementById('fill-grid-ratings-{{ comment.id }}').style.width = rating_percentage + "%";
+                    {% endfor %}
                 };
             </script>
 
             <div class="form-group">
                 <div id="rating-text-over-stars" style="color: #3F3F3F; font-size: 14px;">
-                  </div>
+                </div>
                 <div class="star-ratings">
-                  <div class="fill-ratings" id="fill-ratings1">
-                    <span>★★★★★</span>
-                  </div>
-                  <div class="empty-ratings">
-                    <span>★★★★★</span>
-                  </div>
+                    <div class="fill-ratings" id="fill-ratings1">
+                        <span>★★★★★</span>
+                    </div>
+                    <div class="empty-ratings">
+                        <span>★★★★★</span>
+                    </div>
                 </div>
             </div>
 
@@ -146,7 +149,8 @@
                     <!-- Button Widget -->
                     <div class="single-widget get-button">
                         <div class="content">
-                            <button class="button btn" id="leave-rating-button" type="button" data-target="#RatingModal" data-toggle="modal" style="z-index: auto; color: #0b0b0b">
+                            <button class="button btn" id="leave-rating-button" type="button" data-target="#RatingModal"
+                                data-toggle="modal" style="z-index: auto; color: #0b0b0b">
                                 Leave a rating
                             </button>
                         </div>
@@ -156,91 +160,124 @@
             </div>
 
             <!-- Modal -->
-            <div class="modal fade" id="RatingModal" tabindex="-1" role="dialog" aria-labelledby="ratingModalLabel" aria-hidden="true">
-              <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <div class="rating-text">
-                        <h1 class="modal-title" id="ratingModalLabel" >Rate this product</h1>
-                    </div>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body rating-body">
-                    <!-------- modal body ------->
-                        <div class="container d-flex justify-content-center mt-200">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="stars">
-                                        <form id="ratingForm" method="post" action="/product/{{ product.id }}/_add_rating">
-                                            <input class="star star-5" id="star-5" type="radio" name="star" value="5"/>
-                                            <label class="star star-5" for="star-5"></label>
-                                            <input class="star star-4" id="star-4" type="radio" name="star" value="4"/>
-                                            <label class="star star-4" for="star-4"></label>
-                                            <input class="star star-3" id="star-3" type="radio" name="star" value="3"/>
-                                            <label class="star star-3" for="star-3"></label>
-                                            <input class="star star-2" id="star-2" type="radio" name="star" value="2"/>
-                                            <label class="star star-2" for="star-2"></label>
-                                            <input class="star star-1" id="star-1" type="radio" name="star" value="1" required/>
-                                            <label class="star star-1" for="star-1"></label>
+            <div class="modal fade" id="RatingModal" tabindex="-1" role="dialog" aria-labelledby="ratingModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div class="rating-text">
+                                <h1 class="modal-title" id="ratingModalLabel">Rate this product</h1>
+                            </div>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body rating-body">
+                            <!-------- modal body ------->
+                            <div class="container d-flex justify-content-center mt-200">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="stars">
+                                            <form id="ratingForm" method="post"
+                                                action="/product/{{ product.id }}/_add_rating">
+                                                <input class="star star-5" id="star-5" type="radio" name="star"
+                                                    value="5" />
+                                                <label class="star star-5" for="star-5"></label>
+                                                <input class="star star-4" id="star-4" type="radio" name="star"
+                                                    value="4" />
+                                                <label class="star star-4" for="star-4"></label>
+                                                <input class="star star-3" id="star-3" type="radio" name="star"
+                                                    value="3" />
+                                                <label class="star star-3" for="star-3"></label>
+                                                <input class="star star-2" id="star-2" type="radio" name="star"
+                                                    value="2" />
+                                                <label class="star star-2" for="star-2"></label>
+                                                <input class="star star-1" id="star-1" type="radio" name="star"
+                                                    value="1" required />
+                                                <label class="star star-1" for="star-1"></label>
 
-                                            <div class="form-group text-center">
-                                                <label for="exampleFormControlTextarea1">Comment on your experience</label>
-                                                <textarea class="form-control" id="exampleFormControlTextarea1" name="rating_comment" rows="3"></textarea>
-                                            </div>
-                                        </form>
+                                                <div class="form-group text-center">
+                                                    <label for="exampleFormControlTextarea1">Comment on your
+                                                        experience</label>
+                                                    <textarea class="form-control" id="exampleFormControlTextarea1"
+                                                        name="rating_comment" rows="3"></textarea>
+                                                </div>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            <!-------- modal body END ------->
                         </div>
-                    <!-------- modal body END ------->
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" form="ratingForm" class="btn btn-warning" style="background-color: #fca842">Rate</button>
-                  </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" form="ratingForm" class="btn btn-warning"
+                                style="background-color: #fca842">Rate</button>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
             <br>
-{#            <div class="form-group">#}
-{#                <label for="product-pic">Product Photos</label>#}
-{#                <img src="{{ product.photo }}">#}
-{#            </div>#}
+            {# <div class="form-group">#}
+                {# <label for="product-pic">Product Photos</label>#}
+                {# <img src="{{ product.photo }}">#}
+            {# </div>#}
 
-{#            <div class="article-anecdote">#}
-{#                <span class="author-section-border"><span></span></span>#}
-{#                <h2><a href="https://www.vesti.bg/vicove/semejni/1316947-vliza" target="_blank" class="gtm-ArticleVic-click">Виц на деня</a></h2>#}
-{#                <div class="anecdote">#}
-{#                    Влиза един в селската кръчма и пита:#}
-{#        - Който го е страх от жена си, да стане прав!#}
-{#        Всички стават, само един седи.#}
-{#        - Ти…        </div>#}
-{#                <a href="https://www.vesti.bg/vicove/semejni/1316947-vliza" target="_blank" class="gtm-ArticleVic-click">Виж още</a>#}
-{#            </div>#}
-{##}
-{#            <div class="article-anecdote">#}
-{#                <span class="author-section-border"><span></span></span>#}
-{#                <h2><a href="https://www.vesti.bg/vicove/semejni/1316947-vliza" target="_blank" class="gtm-ArticleVic-click">Виц на деня</a></h2>#}
-{#                <div class="anecdote">#}
-{#                    Влиза един в селската кръчма и пита:#}
-{#        - Който го е страх от жена си, да стане прав!#}
-{#        Всички стават, само един седи.#}
-{#        - Ти…        </div>#}
-{#                <a href="https://www.vesti.bg/vicove/semejni/1316947-vliza" target="_blank" class="gtm-ArticleVic-click">Виж още</a>#}
-{#            </div>#}
-{##}
-{#            <div class="article-anecdote">#}
-{#                <span class="author-section-border"><span></span></span>#}
-{#                <h2><a href="https://www.vesti.bg/vicove/semejni/1316947-vliza" target="_blank" class="gtm-ArticleVic-click">Виц на деня</a></h2>#}
-{#                <div class="anecdote">#}
-{#                    Влиза един в селската кръчма и пита:#}
-{#        - Който го е страх от жена си, да стане прав!#}
-{#        Всички стават, само един седи.#}
-{#        - Ти…        </div>#}
-{#                <a href="https://www.vesti.bg/vicove/semejni/1316947-vliza" target="_blank" class="gtm-ArticleVic-click">Виж още</a>#}
-{#            </div>#}
+            <!-- Good Idea But Looks Terrible -->
+            <!-- <div class="product-area most-popular section">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="owl-carousel popular-slider px-2">
+                                {% for comment in comments %}
+                                <div class="article-anecdote mb-3" style="width: 100% !important;">
+                                    <span class="author-section-border"><span></span></span>
+                                    <h2>
+                                        {#--------- star ratings --------#}
+                                        <div class="star-ratings">
+                                            <div class="fill-ratings" id="fill-grid-ratings-{{ comment.id }}">
+                                            <span>★★★★★</span>
+                                            </div>
+                                            <div class="empty-ratings">
+                                            <span>★★★★★</span>
+                                            </div>
+                                        </div>
+                                        {#--------------------------------#}
+                                    </h2>
+                                    <div class="anecdote">
+                                        {{ comment.rating_comment }}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+
+            {% for comment in comments %}
+            <div class="article-anecdote mb-3" style="width: 100% !important;">
+                <span class="author-section-border"><span></span></span>
+                <h2>
+                    {#--------- star ratings --------#}
+                    <div class="star-ratings">
+                        <div class="fill-ratings" id="fill-grid-ratings-{{ comment.id }}">
+                        <span>★★★★★</span>
+                        </div>
+                        <div class="empty-ratings">
+                        <span>★★★★★</span>
+                        </div>
+                    </div>
+                    {#--------------------------------#}
+                </h2>
+                <small class="float-right">
+                    {{ comment.rating_date }}
+                </small>
+                <div class="anecdote">
+                    {{ comment.rating_comment }}
+                </div>
+            </div>
+            {% endfor %}
 
             <button class="btn btn-outline-dark btn-lg btn-block" id="cart_{{ product.id }}">Add to cart</button>
             <span id="result_{{ product.id }}"></span>
@@ -248,218 +285,99 @@
 
 
         </div>
-            <!-- Start Most Popular -->
-            <div class="product-area most-popular section">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="section-title">
-                                <h2>Hot Item</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="owl-carousel popular-slider">
-                                <!-- Start Single Product -->
-                                <div class="single-product">
-                                    <div class="product-img">
-                                        <a href="product-details.html">
-                                            <img class="default-img" src="https://via.placeholder.com/550x750" alt="#">
-                                            <img class="hover-img" src="https://via.placeholder.com/550x750" alt="#">
-                                            <span class="out-of-stock">Hot</span>
-                                        </a>
-                                        <div class="button-head">
-                                            <div class="product-action">
-                                                <a data-toggle="modal" data-target="#exampleModal" title="Quick View" href="#"><i class=" ti-eye"></i><span>Quick Shop</span></a>
-                                                <a title="Wishlist" href="#"><i class=" ti-heart "></i><span>Add to Wishlist</span></a>
-                                                <a title="Compare" href="#"><i class="ti-bar-chart-alt"></i><span>Add to Compare</span></a>
-                                            </div>
-                                            <div class="product-action-2">
-                                                <a title="Add to cart" href="#">Add to cart</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="product-content">
-                                        <h3><a href="product-details.html">Black Sunglass For Women</a></h3>
-                                        <div class="product-price">
-                                            <span class="old">$60.00</span>
-                                            <span>$50.00</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Product -->
-                                <!-- Start Single Product -->
-                                <div class="single-product">
-                                    <div class="product-img">
-                                        <a href="product-details.html">
-                                            <img class="default-img" src="https://via.placeholder.com/550x750" alt="#">
-                                            <img class="hover-img" src="https://via.placeholder.com/550x750" alt="#">
-                                        </a>
-                                        <div class="button-head">
-                                            <div class="product-action">
-                                                <a data-toggle="modal" data-target="#exampleModal" title="Quick View" href="#"><i class=" ti-eye"></i><span>Quick Shop</span></a>
-                                                <a title="Wishlist" href="#"><i class=" ti-heart "></i><span>Add to Wishlist</span></a>
-                                                <a title="Compare" href="#"><i class="ti-bar-chart-alt"></i><span>Add to Compare</span></a>
-                                            </div>
-                                            <div class="product-action-2">
-                                                <a title="Add to cart" href="#">Add to cart</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="product-content">
-                                        <h3><a href="product-details.html">Women Hot Collection</a></h3>
-                                        <div class="product-price">
-                                            <span>$50.00</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Product -->
-                                <!-- Start Single Product -->
-                                <div class="single-product">
-                                    <div class="product-img">
-                                        <a href="product-details.html">
-                                            <img class="default-img" src="https://via.placeholder.com/550x750" alt="#">
-                                            <img class="hover-img" src="https://via.placeholder.com/550x750" alt="#">
-                                            <span class="new">New</span>
-                                        </a>
-                                        <div class="button-head">
-                                            <div class="product-action">
-                                                <a data-toggle="modal" data-target="#exampleModal" title="Quick View" href="#"><i class=" ti-eye"></i><span>Quick Shop</span></a>
-                                                <a title="Wishlist" href="#"><i class=" ti-heart "></i><span>Add to Wishlist</span></a>
-                                                <a title="Compare" href="#"><i class="ti-bar-chart-alt"></i><span>Add to Compare</span></a>
-                                            </div>
-                                            <div class="product-action-2">
-                                                <a title="Add to cart" href="#">Add to cart</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="product-content">
-                                        <h3><a href="product-details.html">Awesome Pink Show</a></h3>
-                                        <div class="product-price">
-                                            <span>$50.00</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Product -->
-                                <!-- Start Single Product -->
-                                <div class="single-product">
-                                    <div class="product-img">
-                                        <a href="product-details.html">
-                                            <img class="default-img" src="https://via.placeholder.com/550x750" alt="#">
-                                            <img class="hover-img" src="https://via.placeholder.com/550x750" alt="#">
-                                        </a>
-                                        <div class="button-head">
-                                            <div class="product-action">
-                                                <a data-toggle="modal" data-target="#exampleModal" title="Quick View" href="#"><i class=" ti-eye"></i><span>Quick Shop</span></a>
-                                                <a title="Wishlist" href="#"><i class=" ti-heart "></i><span>Add to Wishlist</span></a>
-                                                <a title="Compare" href="#"><i class="ti-bar-chart-alt"></i><span>Add to Compare</span></a>
-                                            </div>
-                                            <div class="product-action-2">
-                                                <a title="Add to cart" href="#">Add to cart</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="product-content">
-                                        <h3><a href="product-details.html">Awesome Bags Collection</a></h3>
-                                        <div class="product-price">
-                                            <span>$50.00</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End Single Product -->
-                            </div>
+        {% if recomendations %}
+        <!-- Start Most Popular -->
+        <div class="product-area most-popular section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="section-title">
+                            <h2>Recomendations</h2>
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- End Most Popular Area -->
-
-
-    </div>
-
-
-
-
-
-    {% if recomendations %}
-    <div class="row justify-content-center">
-        <h1>Recomendations</h1>
-    </div>
-    <div class="row justify-content-center">
-        {% for rec in recomendations %}
-        <div class="col-xl-3 col-lg-4 col-md-4 col-12">
-            <div class="single-product">
-                <div class="product-img">
-                    <a href="/product/{{ rec[1] }}">
-                        <img class="default-img"
-                            src="{{ db_session.query(Photo).join(Product).filter(Product.id==rec[1]).first().address }}"
-                            onerror=this.src="../static/images/no-image-icon.png"
-                            alt="">
-                        <img class="hover-img"
-                            src="{{ db_session.query(Photo).join(Product).filter(Product.id==rec[1]).first().address }}"
-                            onerror=this.src="../static/images/no-image-icon.png"
-                            alt="">
-                    </a>
-                    <div class="button-head">
-                        <div class="product-action">
-                            <a data-toggle="modal" data-target="#exampleModal"
-                                title="Quick View" href="#">
-                                <em class=" ti-eye"></em>
-                                <span>Quick Shop</span>
-                            </a>
-                            <script type=text/javascript>
-                                $(function() {
-                                    $('a#wish_{{ rec[1] }}').bind('click', function() {
-                                    $.getJSON($SCRIPT_ROOT + '/_add_to_wishlist', {
-                                        product_id: {{ rec[1] }}
-                                    }, function(data) {
-                                        $("#result_{{ rec[1] }}").text(data.result);
-                                    });
-                                    return false;
-                                    });
-                                });
-                            </script>
-                            <a title="Wishlist" id="wish_{{ rec[1] }}" href="#">
-                                <em class=" ti-heart "></em>
-                                <span>Add to Wishlist</span>
-                            </a>
-                            <a title="Compare" href="#">
-                                <em class="ti-bar-chart-alt"></em>
-                                <span>Add to Compare</span>
-                            </a>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="owl-carousel popular-slider">
+                            {% for rec in recomendations %}
+                            <!-- Start Single Product -->
+                            <div class="single-product">
+                                <div class="product-img">
+                                    <a href="/product/{{ rec[1] }}">
+                                        <img class="default-img"
+                                            src="{{ db_session.query(Photo).join(Product).filter(Product.id==rec[1]).first().address }}"
+                                            onerror=this.src="../static/images/no-image-icon.png" alt="">
+                                        <img class="hover-img"
+                                            src="{{ db_session.query(Photo).join(Product).filter(Product.id==rec[1]).first().address }}"
+                                            onerror=this.src="../static/images/no-image-icon.png" alt="">
+                                        <span class="out-of-stock">Hot</span>
+                                    </a>
+                                    <div class="button-head">
+                                        <div class="product-action">
+                                            <a data-toggle="modal" data-target="#exampleModal" title="Quick View"
+                                                href="#">
+                                                <em class=" ti-eye"></em>
+                                                <span>Quick Shop</span>
+                                            </a>
+                                            <script type=text/javascript>
+                                                    $(function() {
+                                                        $('a#wish_{{ rec[1] }}').bind('click', function() {
+                                                        $.getJSON($SCRIPT_ROOT + '/_add_to_wishlist', {
+                                                            product_id: {{ rec[1] }}
+                                                        }, function(data) {
+                                                            $("#result_{{ rec[1] }}").text(data.result);
+                                                        });
+                                                        return false;
+                                                        });
+                                                    });
+                                                </script>
+                                            <a title="Wishlist" id="wish_{{ rec[1] }}" href="#">
+                                                <em class=" ti-heart "></em>
+                                                <span>Add to Wishlist</span>
+                                            </a>
+                                            <a title="Compare" href="#">
+                                                <em class="ti-bar-chart-alt"></em>
+                                                <span>Add to Compare</span>
+                                            </a>
+                                        </div>
+                                        <div class="product-action-2">
+                                            <script type=text/javascript>
+                                                    $(function() {
+                                                        $('a#cart_{{ rec[1] }}').bind('click', function() {
+                                                        $.getJSON($SCRIPT_ROOT + '/_add_to_cart', {
+                                                            product_id: {{ rec[1] }}
+                                                        }, function(data) {
+                                                            $("#result_{{ rec[1] }}").text(data.result);
+                                                        });
+                                                        return false;
+                                                        });
+                                                    });
+                                                </script>
+                                            <a title="Add to cart" href="#" id="cart_{{ rec[1] }}">Add to
+                                                cart</a>
+                                            <span id="result_{{ rec[1] }}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="product-content">
+                                    <h3>{{ Product.query.filter_by(id=rec[1]).first().name }}</h3>
+                                    <div class="product-price">
+                                        <span>{{ Product.query.filter_by(id=rec[1]).first().price }} лв</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End Single Product -->
+                            {% endfor %}
                         </div>
-                        <div class="product-action-2">
-                            <script type=text/javascript>
-                                $(function() {
-                                    $('a#cart_{{ rec[1] }}').bind('click', function() {
-                                    $.getJSON($SCRIPT_ROOT + '/_add_to_cart', {
-                                        product_id: {{ rec[1] }}
-                                    }, function(data) {
-                                        $("#result_{{ rec[1] }}").text(data.result);
-                                    });
-                                    return false;
-                                    });
-                                });
-                            </script>
-                            <a title="Add to cart" href="#"
-                                id="cart_{{ rec[1] }}">Add to
-                                cart</a>
-                            <span id="result_{{ rec[1] }}"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="product-content">
-                    <h3>{{ Product.query.filter_by(id=rec[1]).first().name }}</h3>
-                    <div class="product-price">
-                        <span>{{ Product.query.filter_by(id=rec[1]).first().price }} лв</span>
                     </div>
                 </div>
             </div>
         </div>
-        {% endfor %}
+        <!-- End Most Popular Area -->
+        {% endif %}
+
+
     </div>
-    {% endif %}
 </div>
 
 {% endblock %}

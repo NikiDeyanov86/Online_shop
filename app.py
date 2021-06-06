@@ -100,7 +100,7 @@ def shutdown_context(exception=None):
 
 @app.route('/')
 def home():
-    
+
     if 'login_id' in current_user.__dict__:
         return render_template('index.html', products=Product.query.all(),
                                cart=Cart.query.filter_by(
@@ -156,7 +156,7 @@ def login():
 
 def _add_category():
     name = request.form['category_name']
-    
+
     if 'category_pic' in request.files and request.files['category_pic']:
         file = request.files['category_pic']
         filename = secure_filename(file.filename)
@@ -165,9 +165,9 @@ def _add_category():
         if validate_file_type(filename, ["jpeg", "jpg", "png"]):
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             new_category = Category(name=name, address=f'/uploads/{filename}')
-            
+
             db_session.add(new_category)
-    
+
     db_session.commit()
 
 
@@ -389,7 +389,8 @@ def remove_code():
 @login_required
 def cart():
     return render_template('cart.html',
-                           cart=Cart.query.filter_by(user_id=current_user.id).all(),
+                           cart=Cart.query.filter_by(
+                               user_id=current_user.id).all(),
                            db_session=db_session,
                            Product=Product, Photo=Photo, Cart=Cart, User=User)
 
@@ -528,7 +529,8 @@ def shop_grid():
         # TODO rating
         return render_template('shop-grid.html', products=Product.query.all(), categories=Category.query.all(),
                                db_session=db_session, recomendations=r[:5], Photo=Photo, Product=Product,
-                               cart=Cart.query.filter_by(user_id=current_user.id).all(),
+                               cart=Cart.query.filter_by(
+                                   user_id=current_user.id).all(),
                                Cart=Cart, Category=Category, User=User,
                                RatingProduct=RatingProduct)
 
@@ -574,7 +576,8 @@ def shop_list(category_id):
 def checkout():
     if request.method == 'GET':
         return render_template('checkout.html', db_session=db_session, User=User,
-                               cart=Cart.query.filter_by(user_id=current_user.id).all(),
+                               cart=Cart.query.filter_by(
+                                   user_id=current_user.id).all(),
                                orders=Order.query.filter_by(user_id=current_user.id).all(), Order=Order, Cart=Cart, Photo=Photo, Product=Product)
     else:
         if request.form['SubmitAddress'] == "submit-address":
@@ -729,10 +732,18 @@ def product_details(product_id):
         r = [p for p in r if p[0] > 0]
         pprint(r)
 
+        # Get Comments
+        comments = RatingProduct.query.filter(
+            RatingProduct.product_id == product_id,
+            RatingProduct.rating_comment != "").all()
+
+        print("Comments")
+        pprint([comment.__dict__ for comment in comments])
+
     return render_template(
         "product_details.html", product=product, recomendations=r[:5],
         db_session=db_session, Product=Product, Photo=Photo,
-        Cart=Cart, User=User)
+        Cart=Cart, User=User, comments=comments[:3])
 
 
 @app.route('/product/<int:product_id>/_add_rating', methods=['POST'])
@@ -752,7 +763,8 @@ def _add_rating(product_id):
 
     db_session.add(rating)
     db_session.commit()
-    product.rating = get_rating_product(product_id)  # TODO this is correct, don't remove
+    # TODO this is correct, don't remove
+    product.rating = get_rating_product(product_id)
     db_session.add(product)
     db_session.commit()
 

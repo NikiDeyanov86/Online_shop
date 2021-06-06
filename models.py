@@ -58,7 +58,6 @@ class Category(Base):
 
     product = relationship("Product", back_populates="category",
                            cascade=DELETE_ALL, passive_deletes=True)
-    
 
 
 class Product(Base):
@@ -97,8 +96,6 @@ class Photo(Base):
     product_id = Column(Integer, ForeignKey(
         'Product.id', ondelete="CASCADE"))
     product = relationship("Product", back_populates="photo")
-
-    
 
 
 class Wishlist(Base):
@@ -171,9 +168,10 @@ class PromoCode(Base):
 
 class RatingProduct(Base):
     __tablename__ = 'RatingProduct'
+    id = Column(Integer, primary_key=True)
 
-    user_id = Column(Integer, ForeignKey('User.id'), primary_key=True)
-    product_id = Column(Integer, ForeignKey('Product.id'), primary_key=True)
+    user_id = Column(Integer, ForeignKey('User.id', ondelete="CASCADE"))
+    product_id = Column(Integer, ForeignKey('Product.id', ondelete="CASCADE"))
     rating = Column(Integer)
 
     user = relationship(User, backref=backref("rating_user_assoc"))
