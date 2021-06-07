@@ -208,6 +208,7 @@ def _add_product():
     return new_product
 
 
+
 def _add_promo_code():
     discount = request.form['discount']
     code = request.form['code']
@@ -306,6 +307,22 @@ def admin():
     return render_template(
         'admin.html', categories=categories, products=products, str=str,
         db_session=db_session, Product=Product, Photo=Photo, codes=codes)
+
+
+@app.route('/admin/delete_product/<int:product_id>', methods=['GET', 'POST'])
+@admin_login_required
+def delete_product(product_id):
+    product = Product.query.filter_by(id=product_id).first()
+    
+    if request.method == 'POST':
+        pass
+    else:
+        db_session.delete(product)
+        db_session.commit()
+
+    
+    return redirect(url_for('admin', categories=Category.query.all(), products=Product.query.all(), str=str,
+        db_session=db_session, Product=Product, Photo=Photo, codes=PromoCode.query.all()))
 
 
 @app.route('/admin/register', methods=['GET', 'POST'])
