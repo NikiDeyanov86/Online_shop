@@ -16,6 +16,8 @@ class User(Base):
     password = Column(String(80), nullable=False)
     login_id = Column(String(36), nullable=True)
 
+    subscribed = Column(Integer, default=1)
+
     wishlist = relationship("Wishlist", back_populates="user",
                             cascade=DELETE_ALL, passive_deletes=True)
     user_cart = relationship("Cart", back_populates="user",

@@ -787,3 +787,19 @@ def add_promo():
     discount = None if not is_code else is_code.discount
 
     return jsonify(status=status, type=code_type, discount=discount)
+
+
+@app.route('/unsubscribe/<int:user_id>/<key>', methods=['GET'])
+def _unsubscribe(user_id, key):
+    if check_password_hash(key, str(user_id)):
+        user = User.query.filter_by(id=user_id).first()
+
+        if user and user.subscribed:
+            user.subscribed = 0
+
+            db_session.add(user)
+            db_session.commit()
+
+            return "Successfully unsubscribed!"
+        else:
+            return "Invalid link"
