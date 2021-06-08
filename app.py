@@ -3,7 +3,7 @@ import os
 
 from flask import Flask
 from flask import render_template, request, \
-    redirect, make_response, url_for, jsonify
+    redirect, make_response, url_for, jsonify, session
 
 from functools import wraps
 
@@ -20,7 +20,7 @@ from models import User, Product, Category, Photo, Wishlist, Cart, Order, \
 import recomendations
 from flask_mail import Mail, Message
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from config import SECRET_KEY, EMAIL, PASSWORD
 from utils import validate_file_type, _send_email, \
@@ -35,6 +35,7 @@ app = Flask(__name__)
 app.secret_key = SECRET_KEY
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 app.config['UPLOAD_FOLDER'] = './uploads'
+app.permanent_session_lifetime = timedelta(days=1)
 
 login_manager.init_app(app)
 init_db()
@@ -80,6 +81,13 @@ def get_rating_product(product_id):
     return rating_percentage
 
 
+# def get_cart_subtotal():
+#     cart_subtotal = 0
+#     for product in Cart.query.filter_by(user_id=current_user.id):
+#         cart_subtotal += product.product_total
+#     return cart_subtotal
+
+
 def admin_login_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
@@ -106,7 +114,8 @@ def home():
                                cart=Cart.query.filter_by(
                                    user_id=current_user.id).all(),
                                db_session=db_session,
-                               Photo=Photo, Product=Product, Cart=Cart, User=User, categories=Category.query.all(), Category=Category, promos=PromoCode.query.all(), PromoCode=PromoCode)
+                               Photo=Photo, Product=Product, Cart=Cart, User=User, categories=Category.query.all(),
+                               Category=Category, promos=PromoCode.query.all(), PromoCode=PromoCode)
 
     else:
         return render_template('index.html', products=Product.query.all(),
@@ -143,15 +152,18 @@ def login():
     else:
         email = request.form['email']
         password = request.form['password']
-
         user = User.query.filter(User.email == email).first()
 
         if user and check_password_hash(user.password, password):
             user.login_id = str(uuid.uuid4())
             db_session.commit()
             login_user(user)
+            session.permanent = True
 
             return redirect(url_for('home'))
+        else:
+            error = 'Invalid credentials'
+            return render_template("login.html", error=error)
 
 
 def _add_category():
@@ -206,7 +218,6 @@ def _add_product():
     db_session.commit()
 
     return new_product
-
 
 
 def _add_promo_code():
@@ -320,7 +331,6 @@ def delete_product(product_id):
         db_session.delete(product)
         db_session.commit()
 
-    
     return redirect(url_for('admin', categories=Category.query.all(), products=Product.query.all(), str=str,
         db_session=db_session, Product=Product, Photo=Photo, codes=PromoCode.query.all()))
 
@@ -362,6 +372,7 @@ def admin_login():
             user.login_id = str(uuid.uuid4())
             db_session.commit()
             login_user(user)
+            session.permanent = True
 
             return redirect(url_for('admin'))
         else:
@@ -385,6 +396,7 @@ def logout():
     current_user.login_id = None
     db_session.commit()
     logout_user()
+    session.pop('code', None)
 
     return redirect(url_for('home'))
 
@@ -422,12 +434,11 @@ def _add_to_cart():
         cart.product_quantity += 1
     else:
         cart = Cart(product_id=product_id, user_id=current_user.id,
-                    product_quantity=1, product_total=0, subtotal=0)
+                    product_quantity=1, product_total=0)
 
     product = Product.query.filter_by(id=product_id).first()
     pprint(cart.__dict__)
     cart.product_total = cart.product_quantity * product.price
-    cart.subtotal += cart.product_total
     user_product = UserProduct.query.filter_by(
         user=current_user, product=product).first()
 
@@ -452,7 +463,6 @@ def _remove_from_cart():
     cart = Cart.query.filter_by(
         product_id=product_id, user_id=current_user.id).first()
 
-    cart.subtotal -= cart.product_total
     db_session.delete(cart)
     db_session.commit()
 
@@ -464,7 +474,8 @@ def wishlist():
     return render_template(
         'wishlist.html', wishlist=Wishlist.query.filter_by(
             user_id=current_user.id).all(), db_session=db_session,
-        Product=Product, Photo=Photo, Wishlist=Wishlist, Cart=Cart)
+        Product=Product, Photo=Photo, Wishlist=Wishlist, Cart=Cart,
+        cart=Cart.query.filter_by(user_id=current_user.id).all())
 
 
 @app.route('/_add_to_wishlist')
@@ -585,7 +596,8 @@ def shop_list(category_id):
 
     return render_template('shop-list.html', products=products, categories=Category.query.all(),
                            db_session=db_session, Photo=Photo, Product=Product,
-                           Cart=Cart, Category=Category, User=User)
+                           Cart=Cart, Category=Category, User=User,
+                           cart=Cart.query.filter_by(user_id=current_user.id).all())
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
@@ -595,7 +607,8 @@ def checkout():
         return render_template('checkout.html', db_session=db_session, User=User,
                                cart=Cart.query.filter_by(
                                    user_id=current_user.id).all(),
-                               orders=Order.query.filter_by(user_id=current_user.id).all(), Order=Order, Cart=Cart, Photo=Photo, Product=Product)
+                               orders=Order.query.filter_by(user_id=current_user.id).all(), Order=Order, Cart=Cart,
+                               Photo=Photo, Product=Product)
     else:
         if request.form['SubmitAddress'] == "submit-address":
             user_id = current_user.id
@@ -639,18 +652,20 @@ def order_confirm():
     order = Order.query.filter_by(id=request.form['options']).first()
 
     return render_template('order_confirmation.html', order=order, Order=Order, db_session=db_session,
-                           cart=Cart.query.filter_by(
-                               user_id=current_user.id).all(), Cart=Cart, Photo=Photo, Product=Product)
+                           cart=Cart.query.filter_by(user_id=current_user.id).all(),
+                           Cart=Cart, Photo=Photo, Product=Product)
 
 
 @app.route('/contact')
 def contact():
-    return render_template('contact.html')
+    return render_template('contact.html', Cart=Cart, cart=Cart.query.filter_by(user_id=current_user.id).all(),
+                           db_session=db_session, Photo=Photo, Product=Product)
 
 
 @app.route('/blog_single_sidebar')
 def blog_single_sidebar():
-    return render_template('blog-single-sidebar.html')
+    return render_template('blog-single-sidebar.html', Cart=Cart, cart=Cart.query.filter_by(user_id=current_user.id).all(),
+                           db_session=db_session, Photo=Photo, Product=Product)
 
 
 @app.route('/_livesearch')
@@ -760,7 +775,7 @@ def product_details(product_id):
     return render_template(
         "product_details.html", product=product, recomendations=r[:5],
         db_session=db_session, Product=Product, Photo=Photo,
-        Cart=Cart, User=User, comments=comments[:3])
+        Cart=Cart, User=User, comments=comments[:3], cart=Cart.query.filter_by(user_id=current_user.id).all())
 
 
 @app.route('/product/<int:product_id>/_add_rating', methods=['POST'])
@@ -780,7 +795,6 @@ def _add_rating(product_id):
 
     db_session.add(rating)
     db_session.commit()
-    # TODO this is correct, don't remove
     product.rating = get_rating_product(product_id)
     db_session.add(product)
     db_session.commit()
@@ -804,6 +818,20 @@ def add_promo():
     discount = None if not is_code else is_code.discount
 
     return jsonify(status=status, type=code_type, discount=discount)
+
+
+@app.route('/cart/_apply_promo')
+@login_required
+def _apply_promo():
+    user_code = request.args['Coupon']
+    code = PromoCode.query.filter_by(code=user_code).first()
+
+    if code:
+        if code.code_type == 'a':
+            session['discount'] = code.discount
+        else:
+            session['discount'] = ((code.discount / 100) * cart_subtotal)
+    return redirect(url_for(cart))
 
 
 @app.route('/unsubscribe/<int:user_id>/<key>', methods=['GET'])

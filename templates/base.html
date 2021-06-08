@@ -174,7 +174,7 @@
 								<a href="/cart" class="single-icon">
 									<em class="ti-bag"></em>
                                     {% if 'login_id' in current_user.__dict__ %}
-									    <span class="total-count" id="total-count">{{ db_session.query(Cart).filter_by(id=current_user.id).count() }}</span>
+									    <span class="total-count" id="total-count">{{ cart | length }}</span>
                                     {% else %}
                                         <span class="total-count">0</span>
                                     {% endif %}
@@ -183,7 +183,7 @@
 								<div class="shopping-item">
 									<div class="dropdown-cart-header">
                                         {% if 'login_id' in current_user.__dict__ %}
-										    <span id="total-count">{{ db_session.query(Cart).filter_by(id=current_user.id).count() }} Items</span>
+										    <span id="total-count">{{ cart | length }} Items</span>
                                         {% else %}
                                             <span>0 Items</span>
                                         {% endif %}
@@ -198,7 +198,10 @@
 											<a class="cart-img" href="#"><img src="{{ db_session.query(Photo).join(Product).filter(Product.id==product.product_id).first().address }}"
 													alt="#"></a>
 											<h4><a href="#">{{ db_session.query(Product).filter(Product.id==product.product_id).first().name }}</a></h4>
-											<p class="quantity">{{ db_session.query(Product).filter(Product.id==product.product_id).first().quantity }} X <span class="amount">${{ db_session.query(Product).filter(Product.id==product.product_id).first().price }}</span></p>
+											<p class="quantity">{{
+												db_session.query(Cart).filter_by(product_id=product.product_id, user_id=current_user.id).first().product_quantity
+												}} X <span class="amount">{{
+													db_session.query(Product).filter(Product.id==product.product_id).first().price }} лв</span></p>
 										</li>
 										{% endfor %}
                                     {% endif %}
@@ -207,9 +210,10 @@
 										<div class="total">
 											<span>Total</span>
                                             {% if 'login_id' in current_user.__dict__ %}
-											    <span class="total-amount">${{ db_session.query(Cart).filter_by(id=current_user.id).subtotal }}</span>
+                                                {% set cart_subtotal = Cart.query.filter_by(user_id=current_user.id).all() | sum(attribute='product_total') %}
+											    <span class="total-amount">{{ cart_subtotal }} лв</span>
                                             {% else %}
-                                                <span class="total-amount">$0.00</span>
+                                                <span class="total-amount">0.00 лв</span>
                                             {% endif %}
 										</div>
 										<a href="/checkout" class="btn animate">Checkout</a>

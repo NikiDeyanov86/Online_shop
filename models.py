@@ -122,7 +122,7 @@ class Cart(Base):
     product_id = Column(Integer, ForeignKey('Product.id', ondelete="CASCADE"))
     product_quantity = Column(Integer, default=1)
     product_total = Column(Float, default=0)
-    subtotal = Column(Float, default=0)
+    # subtotal = Column(Float, default=0)
 
     user = relationship("User", back_populates="user_cart")
     product = relationship("Product", back_populates="cart")

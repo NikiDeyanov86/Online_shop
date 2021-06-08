@@ -141,54 +141,63 @@
 						<div class="col-lg-8 col-md-5 col-12">
 							<div class="left">
 								<div class="coupon">
-									<form action="#" target="_blank">
+									<form action="/cart/_apply_promo" target="_blank" method="post">
 										<input name="Coupon" id="promo_input" placeholder="Enter Your Coupon">
 										<button class="btn" id="promo_btn">Apply</button>
 									</form>
-									<script type=text/javascript>
-										$(function() {
-											$('button#promo_btn').bind('click', function() {
-												var promo_code = $("input#promo_input").val();
-												$.getJSON($SCRIPT_ROOT + '/_add_promo', {
-													code: promo_code
-												}, function(data) {
-													console.log(data);
-													if (data.status) {
-														switch (data.type) {
-															case 'p':
-																$("span#save").text('$' + ((data.discount / 100) * {{ cart.subtotal }}))
-																$("span#total").text('$' + (((100 - data.discount) / 100) * {{ cart.subtotal }}))
-																break;
-															case 'a':
-																$("span#save").text('$' + (data.discount))
-																$("span#total").text('$' + ({{ cart.subtotal }} - data.discount))
-																break;
-															default:
-																break;
-														}
-													} else {
-														$("span#save").text('$0.00')
-														$("span#total").text('$' + ({{ cart.subtotal }}))
-													}
-												});
-												return false;
-											});
-										});
-									</script>
+{#									<script type=text/javascript>#}
+{#										$(function() {#}
+{#											$('button#promo_btn').bind('click', function() {#}
+{#												var promo_code = $("input#promo_input").val();#}
+{#												$.getJSON($SCRIPT_ROOT + '/_add_promo', {#}
+{#													code: promo_code#}
+{#												}, function(data) {#}
+{#													console.log(data);#}
+{#													if (data.status) {#}
+{#														switch (data.type) {#}
+{#															case 'p':#}
+{#																$("span#save").text('$' + ((data.discount / 100) * {{ cart_subtotal }}))#}
+{#																$("span#total").text('$' + (((100 - data.discount) / 100) * {{ cart_subtotal }}))#}
+{#																break;#}
+{#															case 'a':#}
+{#																$("span#save").text('$' + (data.discount))#}
+{#																$("span#total").text('$' + ({{ cart_subtotal }} - data.discount))#}
+{#																break;#}
+{#															default:#}
+{#																break;#}
+{#														}#}
+{#													} else {#}
+{#														$("span#save").text('$0.00')#}
+{#														$("span#total").text('$' + ({{ cart_subtotal }}))#}
+{#													}#}
+{#												});#}
+{#												return false;#}
+{#											});#}
+{#										});#}
+{#									</script>#}
 								</div>
-								<div class="checkbox">
-									<label class="checkbox-inline" for="2"><input name="news" id="2" type="checkbox">
-										Shipping (+10$)</label>
-								</div>
+{#								<div class="checkbox">#}
+{#									<label class="checkbox-inline" for="2"><input name="news" id="2" type="checkbox">#}
+{#										Shipping (+10$)</label>#}
+{#								</div>#}
 							</div>
 						</div>
 						<div class="col-lg-4 col-md-7 col-12">
 							<div class="right">
 								<ul>
-									<li>Cart Subtotal<span>${{ cart.subtotal }}</span></li>
+									<li>Cart Subtotal<span>{{ cart_subtotal }} лв</span></li>
 									<li>Shipping<span>Free</span></li>
-									<li>You Save<span id="save">$0.00</span></li>
-									<li class="last">You Pay<span id="total">#{{ cart.subtotal }}</span></li>
+                                    {% set code = session['code'] %}
+                                    {% if code %}
+                                        {% if code.code_type == 'a' %}
+                                            <li>You Save<span id="save">{{ code.discount }} лв</span></li>
+                                        {% else %}
+                                            <li>You Save<span id="save">{{ code.discount }} лв</span></li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li>You Save<span id="save">0.00 лв</span></li>
+                                    {% endif %}
+									<li class="last">You Pay<span id="total">${{ cart_subtotal }}</span></li>
 								</ul>
 								<div class="button5">
 									<a href="/checkout" class="btn">Checkout</a>  <!-- TODO make buttons active -->
