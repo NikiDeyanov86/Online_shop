@@ -270,8 +270,8 @@
 												<a href="/shop_list/{{category.id}}" class="title-link">Shop
 													{{category.name}}</a>
 												<div class="image">
-													<img src="{{ category.address }}"
-														onerror=this.src="../static/images/no-image-icon.png" alt="">
+													<a href="/shop_list/{{category.id}}"><img src="{{ category.address }}"
+														onerror=this.src="../static/images/no-image-icon.png" alt=""></a>
 												</div>
 											</li>
 											{% endfor %}
@@ -336,7 +336,7 @@
 							<div class="row">
 								<div class="col-lg-7 col-12">
 									<div class="hero-text">
-										<h1><span>UP TO 50% OFF </span>Every drink you need - <br> For everyone.</h1>
+										<h1><span style="color: white;">UP TO 50% OFF </span>Every drink you need - <br> For everyone.</h1>
 
 										<p style="color:white">Welcome to SHOP++!<br> Here you will find the finest selection <br> of alchohol and party drinks in Bulgaria.</p>
 										<div class="button">
@@ -360,13 +360,13 @@
 			<div class="row">
 				{% for category in categories[:3] %}
 				<!-- Single Banner  -->
-				<div class="col-lg-4 col-md-6 col-12">
+				<div class="col-lg-4 col-md-6 col-12" >
 					<div class="single-banner">
 						<img src="{{category.address}}" alt="">
-						<div class="content">
-							<p>Alchohol Collectons</p>
-							<h3 style="background: inherit; background-clip: text; color: white ">{{category.name}} finest <br> collection</h3>
-							<a href="/shop_list/{{category.id}}">Discover Now</a>
+						<div class="content" >
+							<p style="padding: 15px; border-radius: 25px; background: rgba(0, 0, 0, 0.5);">Alchohol Collectons</p>
+							<h3 style="padding: 10px; border-radius: 25px; -moz-background-clip: padding;  -webkit-background-clip: padding; background-clip: padding-box; background: rgba(0, 0, 0, 0.5); color: white ">{{category.name}} finest <br> collection</h3>
+							<a href="/shop_list/{{category.id}}" style="padding: 15px; background: rgba(0, 0, 0, 0.6); color: white;">Discover Now</a>
 						</div>
 					</div>
 				</div>
@@ -2202,44 +2202,15 @@
 							<div class="logo">
 								<a href="/"><img src="../static/images/Logos/Logo-Shop++8.png" alt="#"></a>
 							</div>
-							
-							<p class="call">Got Question? Call us 24/7<span><a href="tel:123456789">+0123 456
-										789</a></span></p>
 						</div>
 						<!-- End Single Widget -->
 					</div>
-					<div class="col-lg-2 col-md-6 col-12">
-						<!-- Single Widget -->
-						<div class="single-footer links">
-							<h4>Information</h4>
-							<ul>
-								<li><a href="#">About Us</a></li>
-								<li><a href="#">Faq</a></li>
-								<li><a href="#">Terms & Conditions</a></li>
-								<li><a href="/contact">Contact Us</a></li>
-								<li><a href="#">Help</a></li>
-							</ul>
-						</div>
-						<!-- End Single Widget -->
-					</div>
-					<div class="col-lg-2 col-md-6 col-12">
-						<!-- Single Widget -->
-						<div class="single-footer links">
-							<h4>Customer Service</h4>
-							<ul>
-								<li><a href="#">Payment Methods</a></li>
-								<li><a href="#">Money-back</a></li>
-								<li><a href="#">Returns</a></li>
-								<li><a href="#">Shipping</a></li>
-								<li><a href="#">Privacy Policy</a></li>
-							</ul>
-						</div>
-						<!-- End Single Widget -->
-					</div>
-					<div class="col-lg-3 col-md-6 col-12">
+					
+					
+					<div class="col-lg-3 col-md-6 col-12 pl-5">
 						<!-- Single Widget -->
 						<div class="single-footer social">
-							<h4>Get In Tuch</h4>
+							<h4>Get In Touch</h4>
 							<!-- Single Widget -->
 							<div class="contact">
 								<ul>
