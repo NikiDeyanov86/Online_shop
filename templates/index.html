@@ -2007,7 +2007,11 @@
 						<img src="../static/images/sale.jpg" alt="">
 						<div class="content">
 							<p>Alchohol Collectons</p>
-							<h3 style="background-color: transparent;">Up to<span> {{promo.discount}}%</span> with promo code "{{promo.code}}"</h3>
+                            {% if promo.code_type == 'a' %}
+							    <h3 style="background-color: transparent;">Save UP TO <span>{{promo.discount}} лв </span>with promo code "{{promo.code}}"</h3>
+                            {% else %}
+                                <h3 style="background-color: transparent;">Save UP TO <span>{{promo.discount}}% </span>with promo code "{{promo.code}}"</h3>
+                            {% endif %}
 							<a href="/shop_grid">Shop Now</a>
 						</div>
 					</div>

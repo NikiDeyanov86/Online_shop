@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, \
-    ForeignKey, DateTime, TIMESTAMP
+    ForeignKey, DateTime, TIMESTAMP, Numeric
 from sqlalchemy.orm import relationship, backref
 from database import Base
 from sqlalchemy.sql.schema import Table
@@ -68,7 +68,7 @@ class Product(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(80), nullable=False)
     description = Column(String(500), nullable=True)
-    price = Column(Float, nullable=False)
+    price = Column(Numeric(12, 2), nullable=False)
     rating = Column(Float, nullable=True, default=0)
 
     category_id = Column(Integer, ForeignKey(
@@ -121,7 +121,7 @@ class Cart(Base):
     user_id = Column(Integer, ForeignKey('User.id', ondelete="CASCADE"))
     product_id = Column(Integer, ForeignKey('Product.id', ondelete="CASCADE"))
     product_quantity = Column(Integer, default=1)
-    product_total = Column(Float, default=0)
+    product_total = Column(Numeric(12, 2), default=0)
     # subtotal = Column(Float, default=0)
 
     user = relationship("User", back_populates="user_cart")
