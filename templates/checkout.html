@@ -114,8 +114,20 @@
                                 <div class="content">
                                     <ul>
                                         <li>Subtotal<span>{{ cart_subtotal }} лв</span></li>
-                                        <li>(+) Shipping<span>$10.00</span></li>
-                                        <li class="last">Total<span>{{ cart_subtotal }} лв</span></li>
+                                        <li>(+) Shipping<span>Free</span></li>
+										{% set code = session['code'] %}
+										{% set discount = 0 %}
+										{% if code %}
+											{% if code.code_type == 'a' %}
+												{% set discount = code.discount %}
+											{% else %}
+												{% set discount = (code.discount / 100) * cart_subtotal %}
+											{% endif %}
+											<li>(-) Discount<span>{{ discount }} лв</span></li>
+										{% else %}
+											<li>(-) Discount<span>0.00 лв</span></li>
+										{% endif %}
+                                        <li class="last">Total<span>{{ cart_subtotal - discount }} лв</span></li>
                                     </ul>
                                 </div>
                             </div>

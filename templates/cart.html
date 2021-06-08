@@ -58,7 +58,7 @@
 								<p class="product-name"><a href="#">{{ db_session.query(Product).filter(Product.id==product.product_id).first().name }}</a></p>
 								<p class="product-des">{{ db_session.query(Product).filter(Product.id==product.product_id).first().description }}</p>
 							</td>
-							<td class="price" data-title="Price"><span>${{ db_session.query(Product).filter(Product.id==product.product_id).first().price }} </span></td>
+							<td class="price" data-title="Price"><span>{{ db_session.query(Product).filter(Product.id==product.product_id).first().price }} лв </span></td>
 							<td class="qty" data-title="Qty">
 								<!-- Input Order -->
 								<script type=text/javascript>
@@ -101,7 +101,7 @@
 								</div>
 								<!--/ End Input Order -->
 							</td>
-							<td class="total-amount" data-title="Total"><span>${{ product.product_total }}</span></td>
+							<td class="total-amount" data-title="Total"><span>{{ product.product_total }} лв</span></td>
 							<td class="action" data-title="Remove"><a href="#" id="remove_{{ product.product_id }}"><i class="ti-trash remove-icon"></i></a>
 
 
@@ -141,9 +141,9 @@
 						<div class="col-lg-8 col-md-5 col-12">
 							<div class="left">
 								<div class="coupon">
-									<form action="/cart/_apply_promo" target="_blank" method="post">
-										<input name="Coupon" id="promo_input" placeholder="Enter Your Coupon">
-										<button class="btn" id="promo_btn">Apply</button>
+									<form action="/cart/_apply_promo" method="post">
+										<input name="coupon" id="promo_input" placeholder="Enter Your Coupon">
+										<input class="btn" type="submit" value="Apply" id="promo_btn">
 									</form>
 {#									<script type=text/javascript>#}
 {#										$(function() {#}
@@ -188,16 +188,18 @@
 									<li>Cart Subtotal<span>{{ cart_subtotal }} лв</span></li>
 									<li>Shipping<span>Free</span></li>
                                     {% set code = session['code'] %}
+									{% set discount = 0 %}
                                     {% if code %}
                                         {% if code.code_type == 'a' %}
-                                            <li>You Save<span id="save">{{ code.discount }} лв</span></li>
+											{% set discount = code.discount %}
                                         {% else %}
-                                            <li>You Save<span id="save">{{ code.discount }} лв</span></li>
+											{% set discount = (code.discount / 100) * cart_subtotal %}
                                         {% endif %}
+										<li>You Save<span id="save">{{ discount }} лв</span></li>
                                     {% else %}
                                         <li>You Save<span id="save">0.00 лв</span></li>
                                     {% endif %}
-									<li class="last">You Pay<span id="total">${{ cart_subtotal }}</span></li>
+									<li class="last">You Pay<span id="total">{{ cart_subtotal - discount }} лв</span></li>
 								</ul>
 								<div class="button5">
 									<a href="/checkout" class="btn">Checkout</a>  <!-- TODO make buttons active -->

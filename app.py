@@ -651,7 +651,8 @@ def checkout():
 def order_confirm():
     order = Order.query.filter_by(id=request.form['options']).first()
 
-    return render_template('order_confirmation.html', order=order, Order=Order, db_session=db_session,
+    return render_template('order_confirmation.html', order=order,
+                           Order=Order, db_session=db_session,
                            cart=Cart.query.filter_by(user_id=current_user.id).all(),
                            Cart=Cart, Photo=Photo, Product=Product)
 
@@ -802,36 +803,22 @@ def _add_rating(product_id):
     return redirect(url_for('product_details', product_id=product_id))
 
 
-@app.route('/_add_promo')
-@login_required
-def add_promo():
-    code = request.args['code']
-
-    print(code)
-
-    is_code = PromoCode.query.filter_by(code=code).first()
-
-    print(is_code)
-
-    status = True if is_code else False
-    code_type = None if not is_code else is_code.code_type
-    discount = None if not is_code else is_code.discount
-
-    return jsonify(status=status, type=code_type, discount=discount)
-
-
-@app.route('/cart/_apply_promo')
+@app.route('/cart/_apply_promo', methods=['POST'])
 @login_required
 def _apply_promo():
-    user_code = request.args['Coupon']
+    user_code = request.form['coupon']
     code = PromoCode.query.filter_by(code=user_code).first()
 
     if code:
-        if code.code_type == 'a':
-            session['discount'] = code.discount
-        else:
-            session['discount'] = ((code.discount / 100) * cart_subtotal)
-    return redirect(url_for(cart))
+        session['code'] = {
+            'code_type': code.code_type,
+            'discount': code.discount
+        }
+    return redirect(url_for("cart",
+                            cart=Cart.query.filter_by(
+                                user_id=current_user.id).all(),
+                            db_session=db_session, Product=Product,
+                            Photo=Photo, Cart=Cart, User=User))
 
 
 @app.route('/unsubscribe/<int:user_id>/<key>', methods=['GET'])
