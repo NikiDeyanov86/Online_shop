@@ -727,9 +727,15 @@ def quantity():
     curr = request.args.get('curr', type=int)
     product_id = request.args.get('product_id', type=int)
 
-    product = Product.query.filter_by(product_id=product_id).first()
-    if (product is None):
+    cart_product = Cart.query.filter_by(product_id=product_id).first()
+    if cart_product is None:
         return jsonify("error")
+
+    product = Product.query.filter_by(id=product_id).first()
+    cart_product.product_total += product.price * curr
+    cart_product.product_quantity += curr
+    db_session.add(cart_product)
+    db_session.commit()
 
     print(curr)
     print(product_id)
