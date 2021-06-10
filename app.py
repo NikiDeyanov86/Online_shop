@@ -295,6 +295,23 @@ def admin():
             _promote_product(product)
     elif request.form['Submit'] == 'PromoCode':
         _add_promo_code()
+    elif request.form['Submit'] == 'PromoteCategory':
+        category_id = request.form['category_id']
+
+        products = Product.query.filter_by(category_id=category_id).all()
+        user_ids = []
+        for product in products:
+            if product is not None:
+                cart = Cart.query.filter_by(product_id=product.id).first()
+                if cart is not None:
+                    user_ids.append(cart.user_id)
+        users = [User.query.filter_by(id=user_id).first() for user_id in user_ids]
+
+        category = Category.query.filter_by(id=category_id).first()
+        subject = category.name
+        message = {'product': category, 'hash': generate_password_hash}
+
+        _send_targeted_email(users, mail, Message, jsonify, subject, message, PRODUCT_EMAIL)
     else:
         subject = request.form['subject']
         email_content = request.form['email_content']
